@@ -1,0 +1,21 @@
+# Supabase
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+SUPABASE_STORAGE_BUCKET=documents
+
+# Qdrant Cloud
+QDRANT_URL=https://<cluster-id>.us-east-1-0.aws.cloud.qdrant.io
+QDRANT_API_KEY=<qdrant-api-key>
+QDRANT_COLLECTION=rag_chunks
+
+# Cohere
+COHERE_API_KEY=<cohere-api-key>
+COHERE_EMBED_MODEL=embed-english-v3.0
+COHERE_EMBED_DIMENSIONS=1024
+
+# OpenAI (used later in the query pipeline)
+OPENAI_API_KEY=<openai-api-key>
+
+# Chunking defaults
+CHUNK_SIZE=1000
+CHUNK_OVERLAP=200

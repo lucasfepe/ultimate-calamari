@@ -1,0 +1,29 @@
+# Web framework
+fastapi==0.115.12
+uvicorn[standard]==0.34.3
+
+# Settings / env
+pydantic-settings==2.9.1
+python-dotenv==1.1.0
+
+# File upload
+python-multipart==0.0.20
+
+# Supabase (auth + postgres + storage)
+supabase==2.15.2
+
+# Qdrant vector DB
+qdrant-client==1.14.2
+
+# Cohere embeddings + reranking
+cohere==5.15.0
+
+# OpenAI chat completions (used later in query pipeline)
+openai==1.82.1
+
+# Document parsing
+pypdf==5.4.0
+python-docx==1.1.2
+
+# Async HTTP (used by several clients)
+httpx==0.28.1
