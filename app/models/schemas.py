@@ -125,3 +125,29 @@ class EmbeddedChunk(TextChunk):
     document_id: UUID
     owner_id: UUID
     filename: str
+
+
+# ---------------------------------------------------------------------------
+# RAG query
+# ---------------------------------------------------------------------------
+
+
+class QueryRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=4000)
+    top_k: int = Field(default=20, ge=1, le=100, description="Qdrant candidates before reranking")
+    top_n: int = Field(default=5, ge=1, le=20, description="Chunks sent to the LLM after reranking")
+
+
+class SourceChunk(BaseModel):
+    document_id: str
+    filename: str
+    chunk_index: int
+    text: str
+    relevance_score: float
+
+
+class QueryResponse(BaseModel):
+    answer: str
+    sources: list[SourceChunk]
+    tokens_used: int
+    latency_ms: int

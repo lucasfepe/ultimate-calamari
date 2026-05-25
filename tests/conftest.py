@@ -21,6 +21,31 @@ from asgi_lifespan import LifespanManager
 
 from app.main import app as fastapi_app
 
+
+# ---------------------------------------------------------------------------
+# --slow flag: skip @pytest.mark.slow tests unless explicitly requested
+# ---------------------------------------------------------------------------
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addoption(
+        "--slow",
+        action="store_true",
+        default=False,
+        help="Run slow tests that make real Cohere / Anthropic API calls.",
+    )
+
+
+def pytest_collection_modifyitems(
+    config: pytest.Config, items: list[pytest.Item]
+) -> None:
+    if config.getoption("--slow"):
+        return  # nothing to skip
+    skip = pytest.mark.skip(reason="Skipped by default — run with --slow to include.")
+    for item in items:
+        if "slow" in item.keywords:
+            item.add_marker(skip)
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------

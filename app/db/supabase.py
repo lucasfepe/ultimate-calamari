@@ -245,6 +245,31 @@ async def remove_document_from_library(
     await asyncio.to_thread(_delete)
 
 
+async def insert_usage_log(
+    client: Client,
+    *,
+    library_id: UUID,
+    api_key_hash: str,
+    query_text: str,
+    chunk_count: int,
+    tokens_used: int | None,
+    latency_ms: int | None,
+) -> None:
+    def _insert() -> None:
+        client.table("usage_logs").insert(
+            {
+                "library_id": str(library_id),
+                "api_key_hash": api_key_hash,
+                "query_text": query_text,
+                "chunk_count": chunk_count,
+                "tokens_used": tokens_used,
+                "latency_ms": latency_ms,
+            }
+        ).execute()
+
+    await asyncio.to_thread(_insert)
+
+
 async def get_document_ids_for_library(
     client: Client, library_id: UUID
 ) -> list[str]:

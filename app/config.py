@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     cohere_api_key: str
     cohere_embed_model: str = "embed-english-v3.0"
     cohere_embed_dimensions: int = 1024
+    cohere_rerank_model: str = "rerank-english-v3.0"
 
     # Anthropic (wired in later for the query pipeline)
     anthropic_api_key: str = ""

@@ -7,20 +7,29 @@ to many libraries without re-embedding (the join is resolved at query time).
 
 from __future__ import annotations
 
+import hashlib
+import time
 from typing import Annotated
 from uuid import UUID
 
+import anthropic
+import cohere
 from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
+from qdrant_client import AsyncQdrantClient
 from supabase import Client
 
+from app.config import get_settings
+from app.core.query import run_rag_query
 from app.db import supabase as supa_db
-from app.dependencies import get_supabase
+from app.dependencies import get_anthropic, get_cohere, get_qdrant, get_supabase
 from app.models.schemas import (
     DocumentLibraryAdd,
     DocumentLibraryRow,
     DocumentResponse,
     LibraryCreate,
     LibraryResponse,
+    QueryRequest,
+    QueryResponse,
 )
 
 router = APIRouter()
@@ -207,6 +216,74 @@ async def list_library_documents(
 
     rows = await asyncio.gather(*[_fetch(did) for did in doc_ids])
     return [DocumentResponse(**r) for r in rows if r]
+
+
+# ---------------------------------------------------------------------------
+# POST /v1/libraries/{library_id}/query  — RAG query
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/{library_id}/query",
+    response_model=QueryResponse,
+    summary="Query a library using retrieval-augmented generation",
+)
+async def query_library(
+    library_id: UUID,
+    body: QueryRequest,
+    owner_id: UUID = Depends(get_caller_id),
+    supabase: Client = Depends(get_supabase),
+    qdrant: AsyncQdrantClient = Depends(get_qdrant),
+    cohere_client: cohere.AsyncClientV2 = Depends(get_cohere),
+    anthropic_client: anthropic.AsyncAnthropic = Depends(get_anthropic),
+) -> QueryResponse:
+    await _require_library(supabase, library_id, owner_id)
+
+    # Resolve document scope for this library
+    document_ids = await supa_db.get_document_ids_for_library(supabase, library_id)
+    if not document_ids:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Library has no documents. Add documents before querying.",
+        )
+
+    settings = get_settings()
+    started_at = time.monotonic()
+
+    result = await run_rag_query(
+        prompt=body.prompt,
+        document_ids=document_ids,
+        top_k=body.top_k,
+        top_n=body.top_n,
+        cohere_client=cohere_client,
+        qdrant=qdrant,
+        anthropic_client=anthropic_client,
+        settings=settings,
+    )
+
+    latency_ms = int((time.monotonic() - started_at) * 1000)
+
+    # Log usage (fire-and-forget; don't let logging failures break the response)
+    api_key_hash = hashlib.sha256(str(owner_id).encode()).hexdigest()
+    try:
+        await supa_db.insert_usage_log(
+            supabase,
+            library_id=library_id,
+            api_key_hash=api_key_hash,
+            query_text=body.prompt,
+            chunk_count=len(result.sources),
+            tokens_used=result.tokens_used,
+            latency_ms=latency_ms,
+        )
+    except Exception:  # noqa: BLE001
+        pass  # usage logging must never break a query response
+
+    return QueryResponse(
+        answer=result.answer,
+        sources=result.sources,
+        tokens_used=result.tokens_used,
+        latency_ms=latency_ms,
+    )
 
 
 # ---------------------------------------------------------------------------

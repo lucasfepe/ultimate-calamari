@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 import anthropic
 import cohere
+import httpx
 from fastapi import FastAPI
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import Distance, PayloadSchemaType, VectorParams
@@ -29,7 +30,10 @@ async def lifespan(app: FastAPI):
         settings.supabase_url, settings.supabase_service_role_key
     )
     app.state.qdrant = qdrant
-    app.state.cohere = cohere.AsyncClientV2(api_key=settings.cohere_api_key)
+    app.state.cohere = cohere.AsyncClientV2(
+        api_key=settings.cohere_api_key,
+        httpx_client=httpx.AsyncClient(timeout=120.0),
+    )
     app.state.anthropic = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
 
     # ── Qdrant collection ────────────────────────────────────────────────────

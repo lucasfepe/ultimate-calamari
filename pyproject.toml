@@ -20,3 +20,6 @@ rag-service = "app.__main__:main"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "session"
 testpaths = ["tests"]
+markers = [
+    "slow: tests that make real Cohere / Anthropic API calls; skipped by default (run with --slow)",
+]
