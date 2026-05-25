@@ -151,3 +151,32 @@ class QueryResponse(BaseModel):
     sources: list[SourceChunk]
     tokens_used: int
     latency_ms: int
+
+
+# ---------------------------------------------------------------------------
+# API keys
+# ---------------------------------------------------------------------------
+
+
+class ApiKeyCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100, description="Human-readable label")
+
+
+class ApiKeyCreatedResponse(BaseModel):
+    """Returned once on creation. raw_key is never stored and cannot be retrieved again."""
+
+    id: UUID
+    name: str
+    raw_key: str
+    created_at: datetime
+
+
+class ApiKeyResponse(BaseModel):
+    """Safe representation — never includes the raw key or its hash."""
+
+    id: UUID
+    name: str
+    created_at: datetime
+    last_used_at: Optional[datetime]
+    revoked_at: Optional[datetime]
+    is_active: bool

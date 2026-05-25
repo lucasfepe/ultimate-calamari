@@ -9,7 +9,7 @@ from qdrant_client.models import Distance, PayloadSchemaType, VectorParams
 from supabase import create_client
 
 from app.config import get_settings
-from app.api.v1.routes import documents, libraries
+from app.api.v1.routes import api_keys, documents, libraries
 
 
 @asynccontextmanager
@@ -69,6 +69,7 @@ app = FastAPI(
 
 app.include_router(documents.router, prefix="/v1/documents", tags=["documents"])
 app.include_router(libraries.router, prefix="/v1/libraries", tags=["libraries"])
+app.include_router(api_keys.router, prefix="/v1/api-keys", tags=["api-keys"])
 
 
 @app.get("/health", tags=["meta"])

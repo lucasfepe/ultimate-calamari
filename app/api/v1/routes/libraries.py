@@ -7,7 +7,6 @@ to many libraries without re-embedding (the join is resolved at query time).
 
 from __future__ import annotations
 
-import hashlib
 import time
 from typing import Annotated
 from uuid import UUID
@@ -19,6 +18,7 @@ from qdrant_client import AsyncQdrantClient
 from supabase import Client
 
 from app.config import get_settings
+from app.core.api_key_auth import ApiKeyContext, require_api_key
 from app.core.query import run_rag_query
 from app.db import supabase as supa_db
 from app.dependencies import get_anthropic, get_cohere, get_qdrant, get_supabase
@@ -231,15 +231,14 @@ async def list_library_documents(
 async def query_library(
     library_id: UUID,
     body: QueryRequest,
-    owner_id: UUID = Depends(get_caller_id),
+    auth: ApiKeyContext = Depends(require_api_key),
     supabase: Client = Depends(get_supabase),
     qdrant: AsyncQdrantClient = Depends(get_qdrant),
     cohere_client: cohere.AsyncClientV2 = Depends(get_cohere),
     anthropic_client: anthropic.AsyncAnthropic = Depends(get_anthropic),
 ) -> QueryResponse:
-    await _require_library(supabase, library_id, owner_id)
+    await _require_library(supabase, library_id, auth.owner_id)
 
-    # Resolve document scope for this library
     document_ids = await supa_db.get_document_ids_for_library(supabase, library_id)
     if not document_ids:
         raise HTTPException(
@@ -263,20 +262,19 @@ async def query_library(
 
     latency_ms = int((time.monotonic() - started_at) * 1000)
 
-    # Log usage (fire-and-forget; don't let logging failures break the response)
-    api_key_hash = hashlib.sha256(str(owner_id).encode()).hexdigest()
+    # Log usage — fire-and-forget, must never break the response
     try:
         await supa_db.insert_usage_log(
             supabase,
             library_id=library_id,
-            api_key_hash=api_key_hash,
+            api_key_hash=auth.key_hash,   # real key hash, not a proxy
             query_text=body.prompt,
             chunk_count=len(result.sources),
             tokens_used=result.tokens_used,
             latency_ms=latency_ms,
         )
     except Exception:  # noqa: BLE001
-        pass  # usage logging must never break a query response
+        pass
 
     return QueryResponse(
         answer=result.answer,
