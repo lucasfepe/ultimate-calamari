@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
 from supabase import Client
 
 from app.db import supabase as supa_db
@@ -113,15 +113,17 @@ async def get_library(
 @router.delete(
     "/{library_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary="Delete a library (documents are NOT deleted)",
 )
 async def delete_library(
     library_id: UUID,
     owner_id: UUID = Depends(get_caller_id),
     supabase: Client = Depends(get_supabase),
-) -> None:
+) -> Response:
     await _require_library(supabase, library_id, owner_id)
     await supa_db.delete_library_row(supabase, library_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # ---------------------------------------------------------------------------
@@ -162,6 +164,7 @@ async def add_document_to_library(
 @router.delete(
     "/{library_id}/documents/{document_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary="Remove a document from a library (document is NOT deleted)",
 )
 async def remove_document_from_library(
@@ -169,9 +172,10 @@ async def remove_document_from_library(
     document_id: UUID,
     owner_id: UUID = Depends(get_caller_id),
     supabase: Client = Depends(get_supabase),
-) -> None:
+) -> Response:
     await _require_library(supabase, library_id, owner_id)
     await supa_db.remove_document_from_library(supabase, document_id, library_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # ---------------------------------------------------------------------------

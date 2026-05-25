@@ -1,29 +1,32 @@
 """
-Shared FastAPI dependencies: typed singletons for every external client.
-Each getter is safe to call from both route handlers and background tasks.
+FastAPI dependency injectors that read pre-built clients from app.state.
+
+Clients are created once per process inside the lifespan() context manager
+(app/main.py), which guarantees they are bound to the correct running event
+loop.  Reading from app.state here is safe from any route handler or
+BackgroundTask that receives the client as a resolved argument.
 """
 
-from functools import lru_cache
+from __future__ import annotations
 
+import anthropic
 import cohere
+from fastapi import Request
 from qdrant_client import AsyncQdrantClient
-from supabase import Client, create_client
-
-from app.config import get_settings
+from supabase import Client
 
 
-@lru_cache
-def get_supabase() -> Client:
-    s = get_settings()
-    return create_client(s.supabase_url, s.supabase_service_role_key)
+def get_supabase(request: Request) -> Client:
+    return request.app.state.supabase
 
 
-@lru_cache
-def get_qdrant() -> AsyncQdrantClient:
-    s = get_settings()
-    return AsyncQdrantClient(url=s.qdrant_url, api_key=s.qdrant_api_key)
+def get_qdrant(request: Request) -> AsyncQdrantClient:
+    return request.app.state.qdrant
 
 
-@lru_cache
-def get_cohere() -> cohere.AsyncClientV2:
-    return cohere.AsyncClientV2(api_key=get_settings().cohere_api_key)
+def get_cohere(request: Request) -> cohere.AsyncClientV2:
+    return request.app.state.cohere
+
+
+def get_anthropic(request: Request) -> anthropic.AsyncAnthropic:
+    return request.app.state.anthropic

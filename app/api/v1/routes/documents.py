@@ -18,6 +18,7 @@ from fastapi import (
     Depends,
     Header,
     HTTPException,
+    Response,
     UploadFile,
     status,
 )
@@ -185,6 +186,7 @@ async def get_document(
 @router.delete(
     "/{document_id}",
     status_code=status.HTTP_204_NO_CONTENT,
+    response_class=Response,
     summary="Delete a document from Storage, Postgres, and Qdrant",
 )
 async def delete_document(
@@ -192,7 +194,7 @@ async def delete_document(
     owner_id: UUID = Depends(get_caller_id),
     supabase: Client = Depends(get_supabase),
     qdrant: AsyncQdrantClient = Depends(get_qdrant),
-) -> None:
+) -> Response:
     row = await supa_db.get_document(supabase, document_id)
     if not row:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Document not found.")
@@ -207,6 +209,8 @@ async def delete_document(
 
     # Remove Postgres row (cascades to document_library join rows)
     await supa_db.delete_document_row(supabase, document_id)
+
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # ---------------------------------------------------------------------------

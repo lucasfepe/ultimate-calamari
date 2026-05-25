@@ -1,23 +1,40 @@
 from contextlib import asynccontextmanager
 
+import anthropic
+import cohere
 from fastapi import FastAPI
-from qdrant_client.models import Distance, VectorParams
+from qdrant_client import AsyncQdrantClient
+from qdrant_client.models import Distance, PayloadSchemaType, VectorParams
+from supabase import create_client
 
 from app.config import get_settings
-from app.dependencies import get_qdrant
 from app.api.v1.routes import documents, libraries
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Ensure the Qdrant collection exists before the server starts accepting requests."""
+    """
+    Create every external client inside the running event loop, store them on
+    app.state, and tear them down on shutdown.
+
+    This avoids the 'Event loop closed' error that occurs when async clients
+    (Qdrant, Cohere, Anthropic) are created via @lru_cache outside the loop
+    that actually drives requests (especially during tests).
+    """
     settings = get_settings()
-    qdrant = get_qdrant()
 
+    qdrant = AsyncQdrantClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key)
+
+    app.state.supabase = create_client(
+        settings.supabase_url, settings.supabase_service_role_key
+    )
+    app.state.qdrant = qdrant
+    app.state.cohere = cohere.AsyncClientV2(api_key=settings.cohere_api_key)
+    app.state.anthropic = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+
+    # ── Qdrant collection ────────────────────────────────────────────────────
     existing = await qdrant.get_collections()
-    names = {c.name for c in existing.collections}
-
-    if settings.qdrant_collection not in names:
+    if settings.qdrant_collection not in {c.name for c in existing.collections}:
         await qdrant.create_collection(
             collection_name=settings.qdrant_collection,
             vectors_config=VectorParams(
@@ -26,7 +43,17 @@ async def lifespan(app: FastAPI):
             ),
         )
 
+    # ── Payload index on document_id (required for filtered search) ──────────
+    # create_payload_index is idempotent: safe to call on every startup.
+    await qdrant.create_payload_index(
+        collection_name=settings.qdrant_collection,
+        field_name="document_id",
+        field_schema=PayloadSchemaType.KEYWORD,
+    )
+
     yield
+
+    await qdrant.close()
 
 
 app = FastAPI(

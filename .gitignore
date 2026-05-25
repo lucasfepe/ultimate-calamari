@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 
+secrets.txt
 # Python
 __pycache__/
 *.py[cod]

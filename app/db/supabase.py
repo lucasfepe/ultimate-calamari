@@ -94,10 +94,10 @@ async def get_document(client: Client, document_id: UUID) -> dict[str, Any] | No
             client.table("documents")
             .select("*")
             .eq("id", str(document_id))
-            .maybe_single()
+            .limit(1)
             .execute()
         )
-        return result.data
+        return result.data[0] if result.data else None
 
     return await asyncio.to_thread(_get)
 
@@ -177,10 +177,10 @@ async def get_library(client: Client, library_id: UUID) -> dict[str, Any] | None
             client.table("libraries")
             .select("*")
             .eq("id", str(library_id))
-            .maybe_single()
+            .limit(1)
             .execute()
         )
-        return result.data
+        return result.data[0] if result.data else None
 
     return await asyncio.to_thread(_get)
 

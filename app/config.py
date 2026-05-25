@@ -21,8 +21,9 @@ class Settings(BaseSettings):
     cohere_embed_model: str = "embed-english-v3.0"
     cohere_embed_dimensions: int = 1024
 
-    # OpenAI (wired in later for the query pipeline)
-    openai_api_key: str = ""
+    # Anthropic (wired in later for the query pipeline)
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-sonnet-4-6"
 
     # Chunking
     chunk_size: int = 1000

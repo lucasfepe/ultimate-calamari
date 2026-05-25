@@ -18,8 +18,8 @@ qdrant-client==1.14.2
 # Cohere embeddings + reranking
 cohere==5.15.0
 
-# OpenAI chat completions (used later in query pipeline)
-openai==1.82.1
+# Anthropic Claude chat completions (used later in query pipeline)
+anthropic==0.52.0
 
 # Document parsing
 pypdf==5.4.0

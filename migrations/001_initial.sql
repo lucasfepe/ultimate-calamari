@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS public.usage_logs (
     api_key_hash  TEXT        NOT NULL,               -- hashed caller key
     query_text    TEXT        NOT NULL,
     chunk_count   INTEGER     NOT NULL DEFAULT 0,     -- chunks sent to LLM
-    tokens_used   INTEGER,                            -- from OpenAI response
+    tokens_used   INTEGER,                            -- from Anthropic response (input + output)
     latency_ms    INTEGER,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
