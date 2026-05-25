@@ -1,25 +1,23 @@
 """
-Library management endpoints.
-
-Libraries are named collections of documents.  The same document can belong
-to many libraries without re-embedding (the join is resolved at query time).
+Library management endpoints — protected by Supabase JWT auth.
 """
 
 from __future__ import annotations
 
 import time
-from typing import Annotated
 from uuid import UUID
 
 import anthropic
 import cohere
-from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from qdrant_client import AsyncQdrantClient
 from supabase import Client
 
 from app.config import get_settings
 from app.core.api_key_auth import ApiKeyContext, require_api_key
 from app.core.query import run_rag_query
+from app.core.user_auth import get_current_user
+from app.db import conversations as conv_db
 from app.db import supabase as supa_db
 from app.dependencies import get_anthropic, get_cohere, get_qdrant, get_supabase
 from app.models.schemas import (
@@ -36,26 +34,6 @@ router = APIRouter()
 
 
 # ---------------------------------------------------------------------------
-# Shared dependency (mirrors documents.py — will be unified under auth later)
-# ---------------------------------------------------------------------------
-
-
-async def get_caller_id(x_user_id: Annotated[str | None, Header()] = None) -> UUID:
-    if not x_user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="X-User-Id header is required (temporary pre-auth mechanism).",
-        )
-    try:
-        return UUID(x_user_id)
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="X-User-Id must be a valid UUID.",
-        )
-
-
-# ---------------------------------------------------------------------------
 # POST /v1/libraries
 # ---------------------------------------------------------------------------
 
@@ -68,7 +46,7 @@ async def get_caller_id(x_user_id: Annotated[str | None, Header()] = None) -> UU
 )
 async def create_library(
     body: LibraryCreate,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> LibraryResponse:
     row = await supa_db.insert_library(
@@ -88,7 +66,7 @@ async def create_library(
     summary="List all libraries owned by the caller",
 )
 async def list_libraries(
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> list[LibraryResponse]:
     rows = await supa_db.list_libraries(supabase, owner_id)
@@ -107,7 +85,7 @@ async def list_libraries(
 )
 async def get_library(
     library_id: UUID,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> LibraryResponse:
     row = await _require_library(supabase, library_id, owner_id)
@@ -127,7 +105,7 @@ async def get_library(
 )
 async def delete_library(
     library_id: UUID,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> Response:
     await _require_library(supabase, library_id, owner_id)
@@ -149,7 +127,7 @@ async def delete_library(
 async def add_document_to_library(
     library_id: UUID,
     body: DocumentLibraryAdd,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> DocumentLibraryRow:
     await _require_library(supabase, library_id, owner_id)
@@ -179,7 +157,7 @@ async def add_document_to_library(
 async def remove_document_from_library(
     library_id: UUID,
     document_id: UUID,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> Response:
     await _require_library(supabase, library_id, owner_id)
@@ -199,7 +177,7 @@ async def remove_document_from_library(
 )
 async def list_library_documents(
     library_id: UUID,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> list[DocumentResponse]:
     await _require_library(supabase, library_id, owner_id)
@@ -249,11 +227,16 @@ async def query_library(
     settings = get_settings()
     started_at = time.monotonic()
 
+    # Build conversation history for Claude from the request (prior turns only;
+    # the current prompt is NOT in body.messages — it gets injected with context).
+    history = [{"role": m.role, "content": m.content} for m in body.messages]
+
     result = await run_rag_query(
         prompt=body.prompt,
         document_ids=document_ids,
         top_k=body.top_k,
         top_n=body.top_n,
+        history=history,
         cohere_client=cohere_client,
         qdrant=qdrant,
         anthropic_client=anthropic_client,
@@ -262,12 +245,41 @@ async def query_library(
 
     latency_ms = int((time.monotonic() - started_at) * 1000)
 
-    # Log usage — fire-and-forget, must never break the response
+    # ── Conversation persistence ───────────────────────────────────────────────
+    # Wrapped in try/except so a DB failure never breaks the query response.
+    conversation_id = None
+    try:
+        conv_uuid = body.conversation_id
+        if conv_uuid is None:
+            # First message in a new conversation — auto-create it
+            title = body.prompt[:80].strip()
+            conv = await conv_db.create_conversation(
+                supabase, auth.owner_id, library_id, title
+            )
+            from uuid import UUID as _UUID  # local to avoid circular shadows
+            conv_uuid = _UUID(conv["id"])
+
+        # Append user turn (plain prompt, no context) then assistant answer
+        sources_json = [s.model_dump() for s in result.sources]
+        await conv_db.append_message(supabase, conv_uuid, "user", body.prompt)
+        await conv_db.append_message(
+            supabase,
+            conv_uuid,
+            "assistant",
+            result.answer,
+            sources=sources_json,
+            tokens_used=result.tokens_used,
+        )
+        conversation_id = conv_uuid
+    except Exception:  # noqa: BLE001
+        pass
+
+    # ── Usage log ─────────────────────────────────────────────────────────────
     try:
         await supa_db.insert_usage_log(
             supabase,
             library_id=library_id,
-            api_key_hash=auth.key_hash,   # real key hash, not a proxy
+            api_key_hash=auth.key_hash,
             query_text=body.prompt,
             chunk_count=len(result.sources),
             tokens_used=result.tokens_used,
@@ -281,6 +293,7 @@ async def query_library(
         sources=result.sources,
         tokens_used=result.tokens_used,
         latency_ms=latency_ms,
+        conversation_id=conversation_id,
     )
 
 

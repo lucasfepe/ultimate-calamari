@@ -22,10 +22,13 @@ from app.models.schemas import SourceChunk
 logger = logging.getLogger(__name__)
 
 _SYSTEM_PROMPT = """\
-You are a precise, helpful assistant. Answer the user's question using ONLY \
-the context provided below. Cite the source filename when it adds clarity. \
-If the provided context does not contain enough information to answer, say so \
-clearly rather than guessing.\
+You are a document assistant. Answer the user's question using ONLY the \
+information provided in the context chunks below. \
+If the context does not contain enough information to answer the question, \
+respond with: "I cannot answer that question as the provided documents do not \
+contain relevant information about it." \
+Do not use any outside knowledge. \
+Do not speculate or infer beyond what is explicitly stated in the documents.\
 """
 
 
@@ -42,24 +45,28 @@ async def run_rag_query(
     document_ids: list[str],
     top_k: int,
     top_n: int,
+    history: list[dict],
     cohere_client: cohere.AsyncClientV2,
     qdrant: AsyncQdrantClient,
     anthropic_client: anthropic.AsyncAnthropic,
     settings: Settings,
 ) -> RagResult:
     """
-    Full RAG pipeline for a single user prompt scoped to a set of document IDs.
+    Full RAG pipeline for a user prompt, optionally with multi-turn history.
 
     Steps:
-        1. Embed the prompt with Cohere (input_type=search_query)
+        1. Embed the CURRENT prompt only (not history) for vector search
         2. Search Qdrant filtered by document_ids
         3. Rerank candidates with Cohere Rerank
-        4. Build a context block from the top-n chunks
-        5. Call Claude with [system + context + prompt]
-        6. Return the answer, source metadata, and token counts
+        4. Build context block from top-n chunks
+        5. Call Claude with [system | history… | current user turn]
+           – Context is injected only into the current user message so that
+             retrieved chunks always reflect the latest question while prior
+             turns give Claude conversational memory.
+        6. Return answer, source metadata, and token counts
     """
 
-    # ── 1. Embed query ────────────────────────────────────────────────────────
+    # ── 1. Embed current prompt (NOT history) ─────────────────────────────────
     logger.info("Embedding query for %d document(s)", len(document_ids))
     vectors = await embed_texts(cohere_client, [prompt], input_type="search_query")
     query_vector = vectors[0]
@@ -104,21 +111,28 @@ async def run_rag_query(
         for c in reranked
     ]
 
-    # ── 4. Build context ──────────────────────────────────────────────────────
+    # ── 4. Build context block ────────────────────────────────────────────────
     context_blocks = [
         f"[{c.filename} · chunk {c.chunk_index}]\n{c.text}" for c in sources
     ]
     context = "\n\n---\n\n".join(context_blocks)
 
-    # ── 5. Generate with Claude ───────────────────────────────────────────────
-    logger.info("Calling Claude (%s)", settings.anthropic_model)
-    user_message = f"Context:\n{context}\n\nQuestion: {prompt}"
+    # ── 5. Build message list for Claude ──────────────────────────────────────
+    # Prior turns are passed verbatim so Claude maintains conversational memory.
+    # The current turn appends the freshly retrieved context so Claude only uses
+    # chunks relevant to *this* question, not older ones.
+    logger.info("Calling Claude (%s) with %d history turn(s)", settings.anthropic_model, len(history))
+
+    claude_messages: list[dict] = list(history)
+    claude_messages.append(
+        {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {prompt}"}
+    )
 
     message = await anthropic_client.messages.create(
         model=settings.anthropic_model,
         max_tokens=1024,
         system=_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_message}],
+        messages=claude_messages,
     )
 
     answer = message.content[0].text

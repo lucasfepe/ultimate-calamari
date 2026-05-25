@@ -1,24 +1,17 @@
 """
-API key management endpoints.
-
-These management operations (create / list / revoke) are still protected by
-the temporary X-User-Id header.  They will be migrated to Supabase JWT auth
-when the full auth layer lands.
-
-The query endpoint (/v1/libraries/{id}/query) is separately protected by the
-Bearer API key — see app/core/api_key_auth.py.
+API key management endpoints — protected by Supabase JWT auth.
 """
 
 from __future__ import annotations
 
 import hashlib
 import secrets
-from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from supabase import Client
 
+from app.core.user_auth import get_current_user
 from app.db import api_keys as api_keys_db
 from app.dependencies import get_supabase
 from app.models.schemas import ApiKeyCreate, ApiKeyCreatedResponse, ApiKeyResponse
@@ -26,26 +19,6 @@ from app.models.schemas import ApiKeyCreate, ApiKeyCreatedResponse, ApiKeyRespon
 router = APIRouter()
 
 _KEY_PREFIX = "sk-"
-
-
-# ---------------------------------------------------------------------------
-# Shared dependency (X-User-Id, same pre-auth pattern as other management routes)
-# ---------------------------------------------------------------------------
-
-
-async def get_caller_id(x_user_id: Annotated[str | None, Header()] = None) -> UUID:
-    if not x_user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="X-User-Id header is required.",
-        )
-    try:
-        return UUID(x_user_id)
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="X-User-Id must be a valid UUID.",
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +34,7 @@ async def get_caller_id(x_user_id: Annotated[str | None, Header()] = None) -> UU
 )
 async def create_api_key(
     body: ApiKeyCreate,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> ApiKeyCreatedResponse:
     raw_key = _KEY_PREFIX + secrets.token_urlsafe(32)
@@ -93,7 +66,7 @@ async def create_api_key(
     summary="List API keys (raw key never returned)",
 )
 async def list_api_keys(
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> list[ApiKeyResponse]:
     rows = await api_keys_db.list_api_keys(supabase, owner_id)
@@ -123,7 +96,7 @@ async def list_api_keys(
 )
 async def revoke_api_key(
     key_id: UUID,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> Response:
     found = await api_keys_db.revoke_api_key(supabase, key_id=key_id, owner_id=owner_id)

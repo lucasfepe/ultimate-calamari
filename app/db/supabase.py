@@ -214,20 +214,33 @@ async def delete_library_row(client: Client, library_id: UUID) -> None:
 async def add_document_to_library(
     client: Client, document_id: UUID, library_id: UUID
 ) -> dict[str, Any]:
-    def _insert() -> dict:
+    def _upsert() -> dict:
         result = (
             client.table("document_library")
-            .insert(
+            .upsert(
                 {
                     "document_id": str(document_id),
                     "library_id": str(library_id),
-                }
+                },
+                on_conflict="document_id,library_id",
+                ignore_duplicates=True,
             )
             .execute()
         )
-        return result.data[0]
+        # On conflict-do-nothing, Postgres returns no rows; fetch the existing one.
+        if result.data:
+            return result.data[0]
+        existing = (
+            client.table("document_library")
+            .select("*")
+            .eq("document_id", str(document_id))
+            .eq("library_id", str(library_id))
+            .limit(1)
+            .execute()
+        )
+        return existing.data[0]
 
-    return await asyncio.to_thread(_insert)
+    return await asyncio.to_thread(_upsert)
 
 
 async def remove_document_from_library(

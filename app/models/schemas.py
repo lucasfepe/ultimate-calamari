@@ -132,10 +132,25 @@ class EmbeddedChunk(TextChunk):
 # ---------------------------------------------------------------------------
 
 
+class ChatMessage(BaseModel):
+    """A single turn in the conversation history passed to the query endpoint."""
+
+    role: str = Field(..., pattern="^(user|assistant)$")
+    content: str
+
+
 class QueryRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=4000)
     top_k: int = Field(default=20, ge=1, le=100, description="Qdrant candidates before reranking")
     top_n: int = Field(default=5, ge=1, le=20, description="Chunks sent to the LLM after reranking")
+    messages: list[ChatMessage] = Field(
+        default_factory=list,
+        description="Prior conversation turns (oldest first). Used to give Claude multi-turn memory.",
+    )
+    conversation_id: Optional[UUID] = Field(
+        default=None,
+        description="Existing conversation to append to. Omit to start a new conversation.",
+    )
 
 
 class SourceChunk(BaseModel):
@@ -151,6 +166,30 @@ class QueryResponse(BaseModel):
     sources: list[SourceChunk]
     tokens_used: int
     latency_ms: int
+    conversation_id: Optional[UUID] = None
+
+
+# ---------------------------------------------------------------------------
+# Conversations
+# ---------------------------------------------------------------------------
+
+
+class ConversationResponse(BaseModel):
+    id: UUID
+    library_id: UUID
+    title: str
+    created_at: datetime
+    updated_at: datetime
+
+
+class ConversationMessageResponse(BaseModel):
+    id: UUID
+    conversation_id: UUID
+    role: str
+    content: str
+    sources: Optional[list[SourceChunk]] = None
+    tokens_used: Optional[int] = None
+    created_at: datetime
 
 
 # ---------------------------------------------------------------------------

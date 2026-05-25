@@ -1,22 +1,17 @@
 """
-Document ingestion endpoints.
-
-Auth is intentionally omitted for now.  A temporary X-User-Id header is
-used to identify the caller; this will be replaced with Supabase JWT
-verification once the auth layer is wired in.
+Document ingestion endpoints — protected by Supabase JWT auth.
 """
 
 from __future__ import annotations
 
+import asyncio
 import uuid
-from typing import Annotated
 from uuid import UUID
 
 from fastapi import (
     APIRouter,
     BackgroundTasks,
     Depends,
-    Header,
     HTTPException,
     Response,
     UploadFile,
@@ -29,6 +24,7 @@ from supabase import Client
 
 from app.core.ingestion import run_ingestion
 from app.core.parsing import SUPPORTED_CONTENT_TYPES, content_type_from_filename
+from app.core.user_auth import get_current_user
 from app.db import supabase as supa_db
 from app.db import qdrant as qdrant_db
 from app.dependencies import get_cohere, get_qdrant, get_supabase
@@ -36,26 +32,7 @@ from app.models.schemas import DocumentCreate, DocumentResponse, DocumentStatus
 
 router = APIRouter()
 
-# ---------------------------------------------------------------------------
-# Dependency: resolve caller identity from header (temporary, pre-auth)
-# ---------------------------------------------------------------------------
-
 _MAX_FILE_BYTES = 50 * 1024 * 1024  # 50 MB
-
-
-async def get_caller_id(x_user_id: Annotated[str | None, Header()] = None) -> UUID:
-    if not x_user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="X-User-Id header is required (temporary pre-auth mechanism).",
-        )
-    try:
-        return UUID(x_user_id)
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="X-User-Id must be a valid UUID.",
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -72,12 +49,11 @@ async def get_caller_id(x_user_id: Annotated[str | None, Header()] = None) -> UU
 async def upload_document(
     file: UploadFile,
     background_tasks: BackgroundTasks,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
     qdrant: AsyncQdrantClient = Depends(get_qdrant),
     cohere_client: cohere.AsyncClientV2 = Depends(get_cohere),
 ) -> DocumentResponse:
-    # --- Validate file type ---------------------------------------------------
     filename = file.filename or "upload"
     content_type = file.content_type or content_type_from_filename(filename) or ""
 
@@ -94,7 +70,6 @@ async def upload_document(
                 ),
             )
 
-    # --- Read bytes (enforce size limit) -------------------------------------
     file_bytes = await file.read()
     if len(file_bytes) > _MAX_FILE_BYTES:
         raise HTTPException(
@@ -102,15 +77,12 @@ async def upload_document(
             detail=f"File exceeds the {_MAX_FILE_BYTES // (1024 * 1024)} MB limit.",
         )
 
-    # --- Generate document ID ------------------------------------------------
     document_id = uuid.uuid4()
 
-    # --- Store file in Supabase Storage --------------------------------------
     file_path = await supa_db.upload_file(
         supabase, owner_id, document_id, filename, content_type, file_bytes
     )
 
-    # --- Create document row in Postgres ------------------------------------
     doc_payload = DocumentCreate(
         owner_id=owner_id,
         filename=filename,
@@ -118,10 +90,8 @@ async def upload_document(
         content_type=content_type,
         file_size_bytes=len(file_bytes),
     )
-    # Override the auto-generated id so it matches the storage path
     record = await _insert_document_with_id(supabase, document_id, doc_payload)
 
-    # --- Enqueue background ingestion ----------------------------------------
     background_tasks.add_task(
         run_ingestion,
         document_id=document_id,
@@ -148,7 +118,7 @@ async def upload_document(
     summary="List all documents owned by the caller",
 )
 async def list_documents(
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> list[DocumentResponse]:
     rows = await supa_db.list_documents(supabase, owner_id)
@@ -167,7 +137,7 @@ async def list_documents(
 )
 async def get_document(
     document_id: UUID,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
 ) -> DocumentResponse:
     row = await supa_db.get_document(supabase, document_id)
@@ -191,7 +161,7 @@ async def get_document(
 )
 async def delete_document(
     document_id: UUID,
-    owner_id: UUID = Depends(get_caller_id),
+    owner_id: UUID = Depends(get_current_user),
     supabase: Client = Depends(get_supabase),
     qdrant: AsyncQdrantClient = Depends(get_qdrant),
 ) -> Response:
@@ -201,20 +171,15 @@ async def delete_document(
     if UUID(row["owner_id"]) != owner_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")
 
-    # Remove Qdrant points first (non-destructive on failure)
     await qdrant_db.delete_chunks_for_document(qdrant, document_id)
-
-    # Remove file from Storage
     await supa_db.delete_file(supabase, row["file_path"])
-
-    # Remove Postgres row (cascades to document_library join rows)
     await supa_db.delete_document_row(supabase, document_id)
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 # ---------------------------------------------------------------------------
-# Internal helper: insert document row with a pre-determined UUID
+# Internal helper
 # ---------------------------------------------------------------------------
 
 
@@ -223,9 +188,6 @@ async def _insert_document_with_id(
     document_id: uuid.UUID,
     payload: DocumentCreate,
 ) -> dict:
-    """Insert with an explicit id instead of using the DB default."""
-    import asyncio
-
     def _insert() -> dict:
         result = (
             supabase.table("documents")

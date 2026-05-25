@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     # Supabase
     supabase_url: str
     supabase_service_role_key: str
+    supabase_anon_key: str
+    supabase_jwt_secret: str = ""  # No longer used; JWT verified via JWKS endpoint
     supabase_storage_bucket: str = "documents"
 
     # Qdrant Cloud

@@ -4,12 +4,13 @@ import anthropic
 import cohere
 import httpx
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from qdrant_client import AsyncQdrantClient
 from qdrant_client.models import Distance, PayloadSchemaType, VectorParams
 from supabase import create_client
 
 from app.config import get_settings
-from app.api.v1.routes import api_keys, documents, libraries
+from app.api.v1.routes import api_keys, conversations, documents, libraries
 
 
 @asynccontextmanager
@@ -67,9 +68,18 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(documents.router, prefix="/v1/documents", tags=["documents"])
 app.include_router(libraries.router, prefix="/v1/libraries", tags=["libraries"])
 app.include_router(api_keys.router, prefix="/v1/api-keys", tags=["api-keys"])
+app.include_router(conversations.router, prefix="/v1/conversations", tags=["conversations"])
 
 
 @app.get("/health", tags=["meta"])
