@@ -1,0 +1,12 @@
+"I'm the CTO of Harbourview Properties. We already use Ultimate Calamari internally to search through our lease documents and building policies. Now our property manager just asked: can our tenants ask questions about their lease directly from our tenant portal without calling the office? Normally this would mean building a RAG pipeline, setting up a vector database, managing embeddings... weeks of work. Let's see how long it actually takes."
+
+Open Ultimate Calamari → Documents → show the 4 Harbourview support documents already uploaded and ready
+Open Ultimate Calamari → Knowledge Bases → show "Harbourview Tenant Support" already set up with all 4 documents
+Go to API Keys → click + New Key → name it "Harbourview Integration" → copy the sk-... key
+Go to Knowledge Bases → click into "Harbourview Tenant Support" → click Copy ID
+Go to API Keys → scroll to Integration Guide → paste your API key and library ID into the playground → select JavaScript → copy the generated code
+Open harbourview.html in a code editor → find the TODO: ULTIMATE CALAMARI INTEGRATION comment → replace the placeholder askQuestion() function with the copied code
+Open harbourview.html in the browser → click 💬 Ask about your lease → type "Can I have a dog in my unit?"
+Watch the answer come back from the actual lease documents
+
+"That's it. The entire integration took under 5 minutes. No vector database setup, no embedding pipeline, no ML team. Just an API call."

@@ -1,0 +1,26 @@
+EMPLOYMENT AGREEMENT
+Between: Nexus Financial Group Inc. ("Employer") and Jordan Mitchell ("Employee")
+Effective Date: January 1, 2026
+
+1. POSITION AND DUTIES
+Employee is hired as Senior Risk Analyst. Employee shall report to the Chief Risk Officer and perform duties including portfolio risk assessment, regulatory compliance reporting, and internal audit support.
+
+2. COMPENSATION
+Base salary: $145,000 CAD per annum, paid bi-weekly. Employee is eligible for an annual performance bonus of up to 20% of base salary, subject to meeting KPIs defined by management. Salary reviews occur annually in January.
+
+3. TERMINATION
+3.1 Termination Without Cause: Employer may terminate this agreement without cause by providing 8 weeks written notice or pay in lieu thereof for every year of service up to a maximum of 24 months.
+3.2 Termination With Cause: Employer may terminate immediately without notice or severance for gross misconduct, fraud, or repeated policy violations.
+3.3 Resignation: Employee must provide 4 weeks written notice of resignation.
+
+4. NON-COMPETE
+Employee agrees not to work for any direct competitor of Nexus Financial Group within Canada for a period of 12 months following termination. Direct competitors are defined as any federally regulated financial institution offering retail banking, investment, or insurance products. Violation of this clause entitles Employer to seek injunctive relief and damages.
+
+5. CONFIDENTIALITY
+Employee shall not disclose any proprietary information, client data, internal processes, or trade secrets during or after employment. This obligation survives termination indefinitely.
+
+6. INTELLECTUAL PROPERTY
+All work products, reports, models, and tools created by Employee during employment are the sole property of Nexus Financial Group Inc.
+
+7. GOVERNING LAW
+This agreement is governed by the laws of the Province of Ontario, Canada.

@@ -1,0 +1,30 @@
+NON-DISCLOSURE AGREEMENT
+Between: Nexus Financial Group Inc. ("Disclosing Party") and Arclight Consulting Partners ("Receiving Party")
+Effective Date: February 15, 2026
+
+1. PURPOSE
+The parties intend to explore a potential engagement whereby Arclight Consulting Partners will provide strategic advisory services to Nexus Financial Group. In connection with this exploration, Disclosing Party may share confidential information.
+
+2. DEFINITION OF CONFIDENTIAL INFORMATION
+Confidential Information includes all financial data, client lists, internal strategies, pricing models, risk frameworks, technology systems, personnel information, and any other information marked as confidential or that a reasonable person would understand to be confidential.
+
+3. OBLIGATIONS
+3.1 Receiving Party shall not disclose Confidential Information to any third party without prior written consent.
+3.2 Receiving Party shall use Confidential Information solely to evaluate the potential engagement.
+3.3 Receiving Party shall protect Confidential Information with at least the same degree of care used for its own confidential information, but no less than reasonable care.
+3.4 Receiving Party may disclose Confidential Information to its employees on a strict need-to-know basis, provided those employees are bound by equivalent confidentiality obligations.
+
+4. EXCLUSIONS
+Obligations do not apply to information that: (a) is or becomes publicly available through no fault of Receiving Party; (b) was known to Receiving Party prior to disclosure; (c) is independently developed by Receiving Party; (d) is required to be disclosed by law or court order, provided Disclosing Party is given prompt notice.
+
+5. DURATION
+This agreement is effective for 3 years from the Effective Date. Confidentiality obligations survive expiration for an additional 2 years, for a total protection period of 5 years.
+
+6. RETURN OF INFORMATION
+Upon request or termination of discussions, Receiving Party shall promptly return or destroy all Confidential Information and certify destruction in writing within 5 business days.
+
+7. REMEDIES
+Receiving Party acknowledges that breach of this agreement would cause irreparable harm for which monetary damages would be inadequate. Disclosing Party is entitled to seek immediate injunctive relief without posting bond.
+
+8. GOVERNING LAW
+This agreement is governed by the laws of the Province of Ontario, Canada.

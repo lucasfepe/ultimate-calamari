@@ -1,0 +1,29 @@
+ "You're a compliance officer at an oil and gas company. You have 50+ regulatory directives uploaded. You need to answer: 'What are our obligations if we have a flaring incident near a residential area?' — but you don't know which directives cover this."
+
+Go to Libraries → Create a new library called "Incident Response Pack"
+Click Add Document → toggle AI Search
+Type: "
+
+flaring near residential areas noise complaints emergency response
+
+"
+
+This is genuinely intelligent — it's not keyword matching. If you had typed "burning gas close to houses" instead, you'd get similar results because the meaning is the same even though the words are different.
+For the demo this is the money moment — show the audience the query, show the ranked results, explain that without this a compliance officer would have to manually check all 10 directives. With AI search they instantly know which 3-4 are relevant.
+
+
+Watch it return ranked directives with relevance scores
+Set relevance threshold slider to 60% — filters out irrelevant directives
+Select all above threshold with one checkbox click
+Click Add selected (4) — bulk adds them instantly
+Go to Chat → select "Incident Response Pack"
+Ask: "What are our obligations if we have a flaring incident near a residential area?"
+Get a precise answer drawn from exactly the right directives
+
+Why this is a killer demo moment:
+
+Shows the problem (50 docs, don't know which ones matter)
+Shows AI-powered discovery (not just keyword search)
+Shows bulk operations (not clicking one by one)
+Shows the answer is grounded in the right documents
+Entire flow takes 60 seconds

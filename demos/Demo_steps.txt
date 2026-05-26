@@ -1,0 +1,37 @@
+The narrative: "Imagine you're a law firm that just received 3 contracts. Instead of reading them all, you upload them and ask questions."
+
+Demo flow:
+
+localStorage.removeItem("hasSeenGuide")
+
+1. Log in with Google (shows auth)
+2. Upload all 3 documents at once (shows multi-upload, watch status update live)
+3. Create a library called 
+"
+
+Legal Contracts Q2 2026
+
+"
+
+description:
+
+"
+
+Legal contracts for Nexus Financial Group Q2 2026 — employment, supplier, and confidentiality agreements.
+
+"
+3. a) Add all 3 documents to it
+4. Go to Chat, select the library
+Ask these questions in sequence to show multi-turn memory:
+
+4. a) 
+What are the termination conditions across these contracts?
+
+4. b)
+Which contract has the strictest non-compete clause?
+
+4. c)
+Summarise the payment terms from the supplier agreement
+
+4. d)
+Based on what you've told me, which contract poses the most risk?

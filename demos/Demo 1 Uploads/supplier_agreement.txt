@@ -1,0 +1,31 @@
+SUPPLIER AGREEMENT
+Between: Nexus Financial Group Inc. ("Client") and DataVault Solutions Ltd. ("Supplier")
+Effective Date: March 1, 2026
+
+1. SCOPE OF SERVICES
+Supplier agrees to provide cloud-based data storage, backup, and disaster recovery services as detailed in Schedule A. Services must maintain 99.9% uptime. Planned maintenance must be communicated 72 hours in advance.
+
+2. PAYMENT TERMS
+2.1 Monthly fee: $28,500 CAD plus applicable taxes, invoiced on the 1st of each month.
+2.2 Payment due within 30 days of invoice date.
+2.3 Late payments accrue interest at 1.5% per month.
+2.4 Disputed invoices must be raised in writing within 10 business days of receipt.
+
+3. DELIVERY OBLIGATIONS
+Supplier must provide monthly service reports by the 5th of the following month. Reports must include uptime statistics, incident logs, and capacity utilization. Failure to deliver reports for 2 consecutive months constitutes a material breach.
+
+4. LIABILITY
+4.1 Supplier's total liability under this agreement shall not exceed 3 months of fees paid ($85,500 CAD).
+4.2 Neither party shall be liable for indirect, consequential, or punitive damages.
+4.3 Supplier maintains $5,000,000 in professional liability insurance at all times.
+
+5. TERMINATION
+5.1 Either party may terminate with 90 days written notice.
+5.2 Client may terminate immediately if Supplier experiences a data breach affecting Client data.
+5.3 Upon termination, Supplier must return or destroy all Client data within 30 days and provide written certification.
+
+6. CONFIDENTIALITY
+Supplier shall treat all Client data as strictly confidential and shall not share, sell, or use Client data for any purpose other than service delivery.
+
+7. GOVERNING LAW
+This agreement is governed by the laws of the Province of British Columbia, Canada.
