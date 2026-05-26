@@ -12,8 +12,9 @@ python-multipart==0.0.20
 # Supabase (auth + postgres + storage)
 supabase==2.15.2
 
-# JWT validation for Supabase tokens
+# JWT validation for Supabase tokens (cryptography required by PyJWT for ES256)
 PyJWT==2.10.1
+cryptography==44.0.3
 
 # Qdrant vector DB
 qdrant-client==1.14.2
