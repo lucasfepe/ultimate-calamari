@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { fetchApiKeys, createApiKey, revokeApiKey, type ApiKeyItem, type ApiKeyCreateResult } from "../api/client";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "https://ultimate-calamari-production.up.railway.app";
 
 // ---------------------------------------------------------------------------
 // Types
