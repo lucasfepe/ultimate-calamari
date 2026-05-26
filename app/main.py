@@ -74,6 +74,7 @@ app.add_middleware(
         "http://localhost:5173",
         "http://localhost:5174",
         "https://ultimate-calamari-production.up.railway.app",
+        "https://ultimate-calamari.vercel.app",
         "null",
     ],
     allow_credentials=True,
