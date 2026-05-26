@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FileText, BookOpen, MessageSquare, Key, Menu, X, HelpCircle,
   LogOut, Loader2, ChevronLeft, ChevronRight, Plus, Trash2, MessageCircle,
@@ -340,6 +340,7 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [initialPage, setInitialPage] = useState<Page | null>(null);
+  const authEventHandled = useRef(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -353,10 +354,14 @@ export default function App() {
       setAuthToken(session?.access_token ?? null);
 
       if (session && event === "SIGNED_IN") {
-        setInitialPage(resolvePostAuthPage());
+        if (!authEventHandled.current) {
+          authEventHandled.current = true;
+          setInitialPage(resolvePostAuthPage());
+        }
       } else if (session && event === "INITIAL_SESSION") {
         setInitialPage(pageFromHash() ?? "chat");
       } else if (!session) {
+        authEventHandled.current = false;
         setInitialPage(null);
       }
     });
