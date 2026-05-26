@@ -32,7 +32,7 @@ export default function Login() {
     setGoogleLoading(true);
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: "http://localhost:5173" },
+      options: { redirectTo: window.location.origin },
     });
     if (error) {
       setError(error.message);
