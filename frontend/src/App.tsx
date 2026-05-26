@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   FileText, BookOpen, MessageSquare, Key, Menu, X, HelpCircle,
   LogOut, Loader2, ChevronLeft, ChevronRight, Plus, Trash2, MessageCircle,
@@ -45,6 +45,19 @@ function pageFromHash(): Page | null {
   return VALID_PAGES.includes(hash) ? hash : null;
 }
 
+function resolvePostAuthPage(): Page {
+  const hashPage = pageFromHash();
+  if (hashPage) {
+    window.history.replaceState(null, "", window.location.pathname);
+    return hashPage;
+  }
+  if (!localStorage.getItem(HAS_SEEN_GUIDE_KEY)) {
+    localStorage.setItem(HAS_SEEN_GUIDE_KEY, "true");
+    return "guide";
+  }
+  return "chat";
+}
+
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
@@ -58,36 +71,18 @@ function relativeTime(iso: string): string {
 // ── Inner app (rendered after auth resolves) ─────────────────────────────────
 // Separate component so it can read ChatSidebarContext (which is provided above it).
 
-function AppShell({ session }: { session: Session }) {
-  const [page, setPage] = useState<Page>("chat");
+function AppShell({ session, initialPage }: { session: Session; initialPage: Page }) {
+  const [page, setPage] = useState<Page>(initialPage);
   const [sidebarOpen, setSidebarOpen] = useState(false);   // mobile drawer
   const [collapsed, setCollapsed] = useState(false);        // desktop collapse
-  const deepLinked = useRef(false);
 
   // Conversation history from TestDrive.tsx via context
   const chatSidebar = useChatSidebar();
   const showHistory = page === "chat" && !!chatSidebar.selectedLibId && !collapsed;
 
-  // Deep-link via URL hash
   useEffect(() => {
-    const hashPage = pageFromHash();
-    if (hashPage) {
-      deepLinked.current = true;
-      setPage(hashPage);
-      window.history.replaceState(null, "", window.location.pathname);
-    }
-  }, []);
-
-  // First-time guide redirect
-  useEffect(() => {
-    if (!deepLinked.current && !localStorage.getItem(HAS_SEEN_GUIDE_KEY)) {
-      setPage("guide");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (page === "guide") localStorage.setItem(HAS_SEEN_GUIDE_KEY, "true");
-  }, [page]);
+    setPage(initialPage);
+  }, [initialPage]);
 
   const handleSignOut = async () => { await supabase.auth.signOut(); };
 
@@ -344,6 +339,7 @@ function AppShell({ session }: { session: Session }) {
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [initialPage, setInitialPage] = useState<Page | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -352,15 +348,21 @@ export default function App() {
       setAuthLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setAuthToken(session?.access_token ?? null);
+
+      if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+        setInitialPage(resolvePostAuthPage());
+      } else if (!session) {
+        setInitialPage(null);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
-  if (authLoading) {
+  if (authLoading || (session && initialPage === null)) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
@@ -374,7 +376,7 @@ export default function App() {
 
   return (
     <ChatSidebarProvider>
-      <AppShell session={session} />
+      <AppShell session={session} initialPage={initialPage!} />
     </ChatSidebarProvider>
   );
 }
