@@ -352,8 +352,10 @@ export default function App() {
       setSession(session);
       setAuthToken(session?.access_token ?? null);
 
-      if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+      if (session && event === "SIGNED_IN") {
         setInitialPage(resolvePostAuthPage());
+      } else if (session && event === "INITIAL_SESSION") {
+        setInitialPage(pageFromHash() ?? "chat");
       } else if (!session) {
         setInitialPage(null);
       }
