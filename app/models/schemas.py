@@ -170,6 +170,22 @@ class QueryResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Document semantic search
+# ---------------------------------------------------------------------------
+
+
+class DocumentSearchRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=2000)
+
+
+class DocumentSearchResult(BaseModel):
+    document_id: str
+    filename: str
+    relevance_score: float = Field(..., ge=0.0, le=1.0, description="Cosine similarity (0–1)")
+    top_chunk_text: str
+
+
+# ---------------------------------------------------------------------------
 # Conversations
 # ---------------------------------------------------------------------------
 

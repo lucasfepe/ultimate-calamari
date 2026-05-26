@@ -28,7 +28,9 @@ If the context does not contain enough information to answer the question, \
 respond with: "I cannot answer that question as the provided documents do not \
 contain relevant information about it." \
 Do not use any outside knowledge. \
-Do not speculate or infer beyond what is explicitly stated in the documents.\
+Do not speculate or infer beyond what is explicitly stated in the documents. \
+Never use markdown tables. Present all comparative or structured information \
+as bullet points or prose instead.\
 """
 
 

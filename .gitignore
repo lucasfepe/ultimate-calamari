@@ -5,6 +5,7 @@
 frontend/.env
 frontend/.env.*
 !frontend/.env.example
+documents/
 
 secrets.txt
 # Python

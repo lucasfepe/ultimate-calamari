@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Harbourview Properties — Tenant Portal</title>
+  <style>
+    /* ── Reset & Variables ───────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --teal-900: #134e4a;
+      --teal-700: #0f766e;
+      --teal-600: #0d9488;
+      --teal-500: #14b8a6;
+      --teal-100: #ccfbf1;
+      --teal-50:  #f0fdfa;
+      --slate-900: #0f172a;
+      --slate-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-400: #94a3b8;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50:  #f8fafc;
+      --white:     #ffffff;
+      --red-500:   #ef4444;
+      --amber-500: #f59e0b;
+      --amber-100: #fef3c7;
+      --amber-700: #b45309;
+      --green-500: #22c55e;
+      --green-100: #dcfce7;
+      --green-700: #15803d;
+      --sidebar-w: 240px;
+      --header-h:  64px;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--slate-100);
+      color: var(--slate-900);
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ─────────────────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--slate-800);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+    .sidebar-brand {
+      padding: 20px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-brand .logo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .sidebar-brand .logo-icon {
+      width: 34px; height: 34px;
+      background: var(--teal-700);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .sidebar-brand .logo-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.2;
+    }
+    .sidebar-brand .logo-sub {
+      font-size: 11px;
+      color: var(--teal-500);
+    }
+    .sidebar-tenant-tag {
+      margin-top: 10px;
+      background: rgba(20,184,166,0.1);
+      border: 1px solid rgba(20,184,166,0.2);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .sidebar-tenant-tag .name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--white);
+    }
+    .sidebar-tenant-tag .unit {
+      font-size: 11px;
+      color: var(--teal-500);
+      margin-top: 1px;
+    }
+    .sidebar-nav {
+      padding: 12px 10px;
+      flex: 1;
+    }
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--slate-500);
+      padding: 8px 10px 4px;
+    }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--slate-400);
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 1px;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.06); color: var(--white); }
+    .nav-item.active {
+      background: rgba(20,184,166,0.15);
+      color: var(--teal-500);
+    }
+    .nav-item .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+    .nav-item .nav-badge {
+      margin-left: auto;
+      background: var(--teal-700);
+      color: var(--white);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 99px;
+    }
+    .sidebar-footer {
+      padding: 14px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-footer .signout {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--slate-500);
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+      border: none; background: none; width: 100%; text-align: left;
+    }
+    .sidebar-footer .signout:hover { color: var(--slate-300); background: rgba(255,255,255,0.04); }
+
+    /* ── Main layout ─────────────────────────────────────────────────────── */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .topbar {
+      height: var(--header-h);
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      flex-shrink: 0;
+    }
+    .topbar .page-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+    .topbar .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .topbar .notif-btn {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      background: var(--slate-100);
+      border: 1px solid var(--slate-200);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+      position: relative;
+    }
+    .topbar .notif-btn .dot {
+      position: absolute;
+      top: 6px; right: 7px;
+      width: 7px; height: 7px;
+      background: var(--red-500);
+      border-radius: 50%;
+      border: 1.5px solid var(--white);
+    }
+    .topbar .avatar {
+      width: 34px; height: 34px;
+      background: var(--teal-600);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--white);
+      cursor: pointer;
+    }
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
+    }
+
+    /* ── Page sections ───────────────────────────────────────────────────── */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+
+    /* ── Cards & grids ───────────────────────────────────────────────────── */
+    .welcome-banner {
+      background: linear-gradient(135deg, var(--teal-700) 0%, var(--teal-900) 100%);
+      border-radius: 14px;
+      padding: 24px 28px;
+      color: var(--white);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .welcome-banner .welcome-text h2 {
+      font-size: 20px; font-weight: 700; margin-bottom: 4px;
+    }
+    .welcome-banner .welcome-text p { font-size: 13.5px; opacity: 0.8; }
+    .welcome-banner .welcome-unit {
+      text-align: right;
+    }
+    .welcome-banner .welcome-unit .unit-label {
+      font-size: 11px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .welcome-banner .welcome-unit .unit-num {
+      font-size: 36px; font-weight: 800; line-height: 1;
+    }
+    .welcome-banner .welcome-unit .building-name {
+      font-size: 12px; opacity: 0.7;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .stat-card .stat-label {
+      font-size: 11.5px;
+      color: var(--slate-500);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .stat-card .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--slate-900);
+      line-height: 1.1;
+    }
+    .stat-card .stat-sub {
+      font-size: 11.5px;
+      color: var(--slate-500);
+      margin-top: 4px;
+    }
+    .stat-card .stat-icon {
+      float: right;
+      font-size: 22px;
+      opacity: 0.15;
+      margin-top: -28px;
+    }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--slate-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .card-header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--slate-800);
+    }
+    .card-header .card-action {
+      font-size: 12px;
+      color: var(--teal-600);
+      cursor: pointer;
+      font-weight: 500;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+    .card-header .card-action:hover { color: var(--teal-700); text-decoration: underline; }
+    .card-body { padding: 16px 20px; }
+
+    /* Activity feed */
+    .activity-list { list-style: none; }
+    .activity-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--slate-100);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      margin-top: 5px;
+      flex-shrink: 0;
+    }
+    .activity-dot.green { background: var(--green-500); }
+    .activity-dot.teal  { background: var(--teal-500); }
+    .activity-dot.amber { background: var(--amber-500); }
+    .activity-dot.slate { background: var(--slate-400); }
+    .activity-text { font-size: 13px; color: var(--slate-700); line-height: 1.4; }
+    .activity-text .act-title { font-weight: 600; }
+    .activity-time { font-size: 11px; color: var(--slate-400); margin-top: 2px; }
+
+    /* Lease summary card */
+    .lease-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--slate-100);
+      font-size: 13px;
+    }
+    .lease-row:last-child { border-bottom: none; }
+    .lease-row .lease-key { color: var(--slate-500); }
+    .lease-row .lease-val { font-weight: 600; color: var(--slate-800); }
+    .lease-row .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 99px;
+    }
+    .badge.green { background: var(--green-100); color: var(--green-700); }
+    .badge.amber { background: var(--amber-100); color: var(--amber-700); }
+
+    /* Quick actions */
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .quick-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 6px;
+      padding: 14px 10px;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 10px;
+      background: var(--white);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      text-align: center;
+    }
+    .quick-btn:hover { border-color: var(--teal-400); background: var(--teal-50); }
+    .quick-btn .qb-icon { font-size: 20px; }
+    .quick-btn .qb-label { font-size: 12px; font-weight: 600; color: var(--slate-700); }
+    .quick-btn .qb-sub { font-size: 10.5px; color: var(--slate-400); }
+
+    /* Payments section */
+    .payment-history { list-style: none; }
+    .payment-item {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--slate-100);
+      font-size: 13px;
+    }
+    .payment-item:last-child { border-bottom: none; }
+    .payment-item .pay-left { display: flex; flex-direction: column; gap: 2px; }
+    .payment-item .pay-label { font-weight: 600; color: var(--slate-800); }
+    .payment-item .pay-date { font-size: 11.5px; color: var(--slate-400); }
+    .payment-item .pay-amount { font-weight: 700; color: var(--green-700); }
+
+    /* Maintenance section */
+    .maint-item {
+      border: 1px solid var(--slate-200);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+    .maint-item .maint-header {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
+    }
+    .maint-item .maint-title { font-size: 14px; font-weight: 600; color: var(--slate-800); }
+    .maint-item .maint-body { font-size: 12.5px; color: var(--slate-500); line-height: 1.5; }
+    .maint-item .maint-meta { font-size: 11.5px; color: var(--slate-400); margin-top: 6px; }
+
+    .status-pill {
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    }
+    .status-pill.open    { background: #fef9c3; color: #a16207; }
+    .status-pill.progress { background: #dbeafe; color: #1d4ed8; }
+    .status-pill.resolved { background: var(--green-100); color: var(--green-700); }
+
+    /* Contact page */
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .contact-card {
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    .contact-card .cc-icon { font-size: 26px; margin-bottom: 10px; }
+    .contact-card h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; color: var(--slate-800); }
+    .contact-card p { font-size: 13px; color: var(--slate-500); line-height: 1.6; }
+    .contact-card a { color: var(--teal-600); text-decoration: none; font-weight: 500; }
+    .contact-card a:hover { text-decoration: underline; }
+
+    /* ── AI Chat Widget ───────────────────────────────────────────────────── */
+    .chat-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--teal-700);
+      color: var(--white);
+      border: none;
+      border-radius: 28px;
+      padding: 13px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 20px rgba(15,118,110,0.45);
+      transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+      z-index: 1000;
+    }
+    .chat-fab:hover {
+      background: var(--teal-600);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(15,118,110,0.50);
+    }
+    .chat-fab .fab-badge {
+      background: var(--white);
+      color: var(--teal-700);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 7px;
+      border-radius: 99px;
+    }
+
+    /* Chat panel */
+    .chat-panel {
+      position: fixed;
+      bottom: 92px;
+      right: 28px;
+      width: 390px;
+      height: 540px;
+      background: var(--white);
+      border-radius: 18px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1001;
+      transform: scale(0.92) translateY(20px);
+      transform-origin: bottom right;
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), opacity 0.18s ease;
+    }
+    .chat-panel.open {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+    .chat-panel-header {
+      background: linear-gradient(135deg, var(--teal-700), var(--teal-900));
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .chat-panel-header .chat-avatar {
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .chat-panel-header .chat-meta { flex: 1; }
+    .chat-panel-header .chat-title {
+      font-size: 14px; font-weight: 700; color: var(--white);
+    }
+    .chat-panel-header .chat-subtitle {
+      font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px;
+    }
+    .chat-panel-header .chat-close {
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: var(--white);
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s;
+    }
+    .chat-panel-header .chat-close:hover { background: rgba(255,255,255,0.22); }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: var(--slate-50);
+    }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--slate-300); border-radius: 4px; }
+
+    .chat-bubble {
+      max-width: 84%;
+      padding: 10px 13px;
+      border-radius: 14px;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+    .chat-bubble.bot {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      color: var(--slate-800);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble.user {
+      background: var(--teal-700);
+      color: var(--white);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-bubble .bubble-meta {
+      font-size: 10.5px;
+      margin-bottom: 4px;
+      font-weight: 600;
+      opacity: 0.65;
+    }
+
+    /* Suggested prompts */
+    .chat-suggestions {
+      padding: 0 0 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      align-self: flex-start;
+      width: 100%;
+    }
+    .chat-suggestions .sug-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--slate-400);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .sug-btn {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 20px;
+      padding: 7px 12px;
+      font-size: 12.5px;
+      color: var(--teal-700);
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.12s, border-color 0.12s;
+      font-weight: 500;
+    }
+    .sug-btn:hover { background: var(--teal-50); border-color: var(--teal-400); }
+
+    /* Typing indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 14px;
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--slate-400);
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+      30% { transform: translateY(-5px); opacity: 1; }
+    }
+
+    /* Chat input */
+    .chat-input-area {
+      padding: 12px 14px;
+      border-top: 1px solid var(--slate-200);
+      background: var(--white);
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      flex-shrink: 0;
+    }
+    .chat-input-area textarea {
+      flex: 1;
+      border: 1.5px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 9px 13px;
+      font-size: 13.5px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      max-height: 90px;
+      line-height: 1.4;
+      color: var(--slate-800);
+      transition: border-color 0.15s;
+    }
+    .chat-input-area textarea:focus { border-color: var(--teal-500); }
+    .chat-input-area textarea::placeholder { color: var(--slate-400); }
+    .chat-send-btn {
+      width: 38px; height: 38px;
+      background: var(--teal-700);
+      border: none;
+      border-radius: 10px;
+      color: var(--white);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s;
+      flex-shrink: 0;
+    }
+    .chat-send-btn:hover { background: var(--teal-600); }
+    .chat-send-btn:disabled { background: var(--slate-300); cursor: not-allowed; }
+    .chat-disclaimer {
+      text-align: center;
+      font-size: 10px;
+      color: var(--slate-400);
+      padding: 4px 14px 10px;
+      background: var(--white);
+    }
+
+    /* ── Misc helpers ────────────────────────────────────────────────────── */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-header h2 { font-size: 18px; font-weight: 700; color: var(--slate-900); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none;
+      transition: background 0.15s;
+    }
+    .btn-teal { background: var(--teal-700); color: var(--white); }
+    .btn-teal:hover { background: var(--teal-600); }
+    .btn-outline {
+      background: var(--white);
+      color: var(--teal-700);
+      border: 1.5px solid var(--teal-300);
+    }
+    .btn-outline:hover { background: var(--teal-50); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo-row">
+        <div class="logo-icon">🏢</div>
+        <div>
+          <div class="logo-name">Harbourview</div>
+          <div class="logo-sub">Properties</div>
+        </div>
+      </div>
+      <div class="sidebar-tenant-tag">
+        <div class="name">Alex Chen</div>
+        <div class="unit">Unit 4B · Harbourview Tower</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-item active" onclick="navigate('dashboard', this)">
+        <span class="nav-icon">🏠</span> Dashboard
+      </button>
+      <button class="nav-item" onclick="navigate('lease', this)">
+        <span class="nav-icon">📄</span> My Lease
+      </button>
+      <button class="nav-item" onclick="navigate('maintenance', this)">
+        <span class="nav-icon">🔧</span> Maintenance
+        <span class="nav-badge">1</span>
+      </button>
+      <button class="nav-item" onclick="navigate('payments', this)">
+        <span class="nav-icon">💳</span> Payments
+      </button>
+
+      <div style="margin-top: 12px;"></div>
+      <div class="nav-section-label">Support</div>
+      <button class="nav-item" onclick="navigate('contact', this)">
+        <span class="nav-icon">📞</span> Contact Us
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="signout">
+        <span>🚪</span> Sign out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Main ───────────────────────────────────────────────────────────── -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <span class="page-title" id="page-title">Dashboard</span>
+      <div class="topbar-right">
+        <div class="notif-btn" title="Notifications">
+          🔔<span class="dot"></span>
+        </div>
+        <div class="avatar" title="Alex Chen">AC</div>
+      </div>
+    </header>
+
+    <div class="content-area">
+
+      <!-- ── Dashboard ────────────────────────────────────────────────────── -->
+      <section class="page-section active" id="page-dashboard">
+
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h2>Good afternoon, Alex 👋</h2>
+            <p>Here's a summary of your tenancy at Harbourview Tower.</p>
+          </div>
+          <div class="welcome-unit">
+            <div class="unit-label">Your Unit</div>
+            <div class="unit-num">4B</div>
+            <div class="building-name">Harbourview Tower</div>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Monthly Rent</div>
+            <div class="stat-value">$2,450</div>
+            <div class="stat-sub">Due 1st of each month</div>
+            <div class="stat-icon">💰</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Lease Ends</div>
+            <div class="stat-value">Jun 30</div>
+            <div class="stat-sub">2026 · 36 days away</div>
+            <div class="stat-icon">📅</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Open Requests</div>
+            <div class="stat-value">1</div>
+            <div class="stat-sub">In progress</div>
+            <div class="stat-icon">🔧</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Next Payment</div>
+            <div class="stat-value">Jun 1</div>
+            <div class="stat-sub">$2,450.00 due</div>
+            <div class="stat-icon">📆</div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div>
+            <div class="card" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <h3>Recent Activity</h3>
+                <button class="card-action">View all</button>
+              </div>
+              <div class="card-body">
+                <ul class="activity-list">
+                  <li class="activity-item">
+                    <span class="activity-dot teal"></span>
+                    <div>
+                      <div class="activity-text"><span class="act-title">Maintenance request submitted</span></div>
+                      <div class="activity-text">Kitchen faucet dripping — Ticket #MR-1047</div>
+                      <div class="activity-time">Today, 9:14 AM · Status: In Progress</div>
+                    </div>
+                  </li>
+                  <li class="activity-item">
+                    <span class="activity-dot green"></span>
+                    <div>
+                      <div class="activity-text"><span class="act-title">Rent payment received</span></div>
+                      <div class="activity-text">May 2026 — $2,450.00 via EFT</div>
+                      <div class="activity-time">May 1, 2026 · Confirmed</div>
+                    </div>
+                  </li>
+                  <li class="activity-item">
+                    <span class="activity-dot green"></span>
+                    <div>
+                      <div class="activity-text"><span class="act-title">Rent payment received</span></div>
+                      <div class="activity-text">April 2026 — $2,450.00 via EFT</div>
+                      <div class="activity-time">Apr 1, 2026 · Confirmed</div>
+                    </div>
+                  </li>
+                  <li class="activity-item">
+                    <span class="activity-dot amber"></span>
+                    <div>
+                      <div class="activity-text"><span class="act-title">Building notice</span></div>
+                      <div class="activity-text">Scheduled water shutoff May 15, 10 AM–2 PM</div>
+                      <div class="activity-time">May 8, 2026</div>
+                    </div>
+                  </li>
+                  <li class="activity-item">
+                    <span class="activity-dot slate"></span>
+                    <div>
+                      <div class="activity-text"><span class="act-title">Maintenance completed</span></div>
+                      <div class="activity-text">Bathroom exhaust fan replaced — Ticket #MR-1031</div>
+                      <div class="activity-time">Apr 18, 2026</div>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom: 20px;">
+              <div class="card-header">
+                <h3>Lease Summary</h3>
+                <button class="card-action" onclick="navigate('lease', document.querySelector('[onclick*=lease]'))">Details →</button>
+              </div>
+              <div class="card-body">
+                <div class="lease-row">
+                  <span class="lease-key">Status</span>
+                  <span class="badge green">Active</span>
+                </div>
+                <div class="lease-row">
+                  <span class="lease-key">Term</span>
+                  <span class="lease-val">Jul 1, 2025 — Jun 30, 2026</span>
+                </div>
+                <div class="lease-row">
+                  <span class="lease-key">Monthly Rent</span>
+                  <span class="lease-val">$2,450.00</span>
+                </div>
+                <div class="lease-row">
+                  <span class="lease-key">Security Deposit</span>
+                  <span class="lease-val">$2,450.00 (held)</span>
+                </div>
+                <div class="lease-row">
+                  <span class="lease-key">Notice Required</span>
+                  <span class="lease-val">60 days written</span>
+                </div>
+                <div class="lease-row">
+                  <span class="lease-key">Renewal Offer</span>
+                  <span class="badge amber">Pending — Due May 1</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h3>Quick Actions</h3></div>
+              <div class="card-body">
+                <div class="quick-actions">
+                  <div class="quick-btn" onclick="navigate('maintenance', document.querySelector('[onclick*=maintenance]'))">
+                    <span class="qb-icon">🔧</span>
+                    <span class="qb-label">New Request</span>
+                    <span class="qb-sub">Report an issue</span>
+                  </div>
+                  <div class="quick-btn" onclick="navigate('payments', document.querySelector('[onclick*=payments]'))">
+                    <span class="qb-icon">💳</span>
+                    <span class="qb-label">Pay Rent</span>
+                    <span class="qb-sub">Next due Jun 1</span>
+                  </div>
+                  <div class="quick-btn" onclick="openChat()">
+                    <span class="qb-icon">💬</span>
+                    <span class="qb-label">Ask AI</span>
+                    <span class="qb-sub">Lease questions</span>
+                  </div>
+                  <div class="quick-btn" onclick="navigate('contact', document.querySelector('[onclick*=contact]'))">
+                    <span class="qb-icon">📞</span>
+                    <span class="qb-label">Contact Us</span>
+                    <span class="qb-sub">Management office</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── My Lease ──────────────────────────────────────────────────────── -->
+      <section class="page-section" id="page-lease">
+        <div class="section-header">
+          <h2>My Lease</h2>
+          <button class="btn btn-outline">⬇ Download PDF</button>
+        </div>
+
+        <div class="two-col" style="margin-bottom: 20px;">
+          <div class="card">
+            <div class="card-header"><h3>Lease Details</h3></div>
+            <div class="card-body">
+              <div class="lease-row"><span class="lease-key">Tenant</span><span class="lease-val">Alex Chen</span></div>
+              <div class="lease-row"><span class="lease-key">Unit</span><span class="lease-val">Suite 4B, Harbourview Tower</span></div>
+              <div class="lease-row"><span class="lease-key">Address</span><span class="lease-val">420 Harbour Drive, Vancouver, BC</span></div>
+              <div class="lease-row"><span class="lease-key">Lease Start</span><span class="lease-val">July 1, 2025</span></div>
+              <div class="lease-row"><span class="lease-key">Lease End</span><span class="lease-val">June 30, 2026</span></div>
+              <div class="lease-row"><span class="lease-key">Status</span><span class="badge green">Active</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Financial Summary</h3></div>
+            <div class="card-body">
+              <div class="lease-row"><span class="lease-key">Monthly Rent</span><span class="lease-val">$2,450.00</span></div>
+              <div class="lease-row"><span class="lease-key">Security Deposit</span><span class="lease-val">$2,450.00</span></div>
+              <div class="lease-row"><span class="lease-key">Pet Deposit</span><span class="lease-val">None</span></div>
+              <div class="lease-row"><span class="lease-key">Utilities Included</span><span class="lease-val">Water, heat, garbage</span></div>
+              <div class="lease-row"><span class="lease-key">Utilities — Tenant</span><span class="lease-val">Electricity, internet</span></div>
+              <div class="lease-row"><span class="lease-key">Late Fee</span><span class="lease-val">$50 after 5th; +$75 after 15th</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-header"><h3>Key Lease Clauses</h3></div>
+          <div class="card-body">
+            <div class="lease-row"><span class="lease-key">Subletting</span><span class="lease-val">Not permitted without written consent. Short-term rentals (Airbnb) strictly prohibited.</span></div>
+            <div class="lease-row"><span class="lease-key">Pets</span><span class="lease-val">Permitted with registration and $500/pet deposit. See Pet Policy for breed/size limits.</span></div>
+            <div class="lease-row"><span class="lease-key">Notice to Vacate</span><span class="lease-val">60 days written notice required. Must be received by the 1st of the month.</span></div>
+            <div class="lease-row"><span class="lease-key">Rent Increases</span><span class="lease-val">3 months written notice required. Not during fixed term. Max once per 12 months.</span></div>
+            <div class="lease-row"><span class="lease-key">Early Termination</span><span class="lease-val">2 months rent fee ($4,900) + 60 days notice. Fee waived if replacement tenant found.</span></div>
+          </div>
+        </div>
+
+        <div style="padding: 18px; background: var(--teal-50); border: 1.5px solid var(--teal-100); border-radius: 12px; display: flex; align-items: center; gap: 14px;">
+          <span style="font-size: 24px;">💬</span>
+          <div>
+            <div style="font-weight: 700; font-size: 14px; color: var(--teal-900); margin-bottom: 3px;">Have questions about your lease?</div>
+            <div style="font-size: 13px; color: var(--teal-700);">Ask our AI assistant — it can explain any clause, calculate notice deadlines, and more.</div>
+          </div>
+          <button class="btn btn-teal" style="margin-left: auto; white-space: nowrap;" onclick="openChat()">💬 Ask about your lease</button>
+        </div>
+      </section>
+
+      <!-- ── Maintenance ────────────────────────────────────────────────────── -->
+      <section class="page-section" id="page-maintenance">
+        <div class="section-header">
+          <h2>Maintenance Requests</h2>
+          <button class="btn btn-teal">+ New Request</button>
+        </div>
+
+        <div class="maint-item">
+          <div class="maint-header">
+            <span class="maint-title">Kitchen faucet dripping</span>
+            <span class="status-pill progress">In Progress</span>
+          </div>
+          <div class="maint-body">The hot water tap in the kitchen has a slow but persistent drip. Started approximately one week ago. No flooding, just waste of water.</div>
+          <div class="maint-meta">Ticket #MR-1047 · Submitted May 26, 2026 · Assigned to: Building Maintenance Team</div>
+        </div>
+
+        <div class="maint-item">
+          <div class="maint-header">
+            <span class="maint-title">Bathroom exhaust fan — loud rattling</span>
+            <span class="status-pill resolved">Resolved</span>
+          </div>
+          <div class="maint-body">Exhaust fan in main bathroom developed a loud rattling noise. Fan was replaced by maintenance crew on Apr 18.</div>
+          <div class="maint-meta">Ticket #MR-1031 · Submitted Apr 14, 2026 · Resolved Apr 18, 2026</div>
+        </div>
+
+        <div class="maint-item">
+          <div class="maint-header">
+            <span class="maint-title">Bedroom window draft</span>
+            <span class="status-pill resolved">Resolved</span>
+          </div>
+          <div class="maint-body">Cold air seeping through the edge of the north-facing bedroom window. Weatherstripping replaced and re-sealed.</div>
+          <div class="maint-meta">Ticket #MR-0988 · Submitted Feb 3, 2026 · Resolved Feb 7, 2026</div>
+        </div>
+      </section>
+
+      <!-- ── Payments ───────────────────────────────────────────────────────── -->
+      <section class="page-section" id="page-payments">
+        <div class="section-header">
+          <h2>Payments</h2>
+          <button class="btn btn-teal">💳 Pay Now</button>
+        </div>
+
+        <div class="two-col" style="margin-bottom: 20px;">
+          <div class="card">
+            <div class="card-header"><h3>Next Payment</h3></div>
+            <div class="card-body" style="text-align: center; padding: 24px;">
+              <div style="font-size: 13px; color: var(--slate-500); margin-bottom: 6px;">Due Date</div>
+              <div style="font-size: 28px; font-weight: 800; color: var(--slate-900);">June 1, 2026</div>
+              <div style="font-size: 22px; font-weight: 700; color: var(--teal-700); margin: 8px 0;">$2,450.00</div>
+              <div style="font-size: 12px; color: var(--slate-400);">Monthly rent — Unit 4B</div>
+              <button class="btn btn-teal" style="margin-top: 16px; width: 100%; justify-content: center;">Pay via EFT</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Payment Method on File</h3></div>
+            <div class="card-body">
+              <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--slate-50); border-radius: 10px; border: 1px solid var(--slate-200);">
+                <span style="font-size: 24px;">🏦</span>
+                <div>
+                  <div style="font-weight: 600; font-size: 13.5px;">RBC Royal Bank</div>
+                  <div style="font-size: 12px; color: var(--slate-500);">Chequing ···· 4821</div>
+                </div>
+                <span class="badge green" style="margin-left: auto;">Active</span>
+              </div>
+              <button class="btn btn-outline" style="margin-top: 12px; width: 100%; justify-content: center;">Update Payment Method</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>Payment History</h3></div>
+          <div class="card-body">
+            <ul class="payment-history">
+              <li class="payment-item">
+                <div class="pay-left"><span class="pay-label">May 2026 — Monthly Rent</span><span class="pay-date">Received May 1, 2026 · EFT · Ref: 20260501-4B</span></div>
+                <span class="pay-amount">$2,450.00</span>
+              </li>
+              <li class="payment-item">
+                <div class="pay-left"><span class="pay-label">April 2026 — Monthly Rent</span><span class="pay-date">Received Apr 1, 2026 · EFT · Ref: 20260401-4B</span></div>
+                <span class="pay-amount">$2,450.00</span>
+              </li>
+              <li class="payment-item">
+                <div class="pay-left"><span class="pay-label">March 2026 — Monthly Rent</span><span class="pay-date">Received Mar 1, 2026 · EFT · Ref: 20260301-4B</span></div>
+                <span class="pay-amount">$2,450.00</span>
+              </li>
+              <li class="payment-item">
+                <div class="pay-left"><span class="pay-label">February 2026 — Monthly Rent</span><span class="pay-date">Received Feb 1, 2026 · EFT · Ref: 20260201-4B</span></div>
+                <span class="pay-amount">$2,450.00</span>
+              </li>
+              <li class="payment-item">
+                <div class="pay-left"><span class="pay-label">January 2026 — Monthly Rent</span><span class="pay-date">Received Jan 2, 2026 · EFT · Ref: 20260102-4B</span></div>
+                <span class="pay-amount">$2,450.00</span>
+              </li>
+              <li class="payment-item">
+                <div class="pay-left"><span class="pay-label">Security Deposit</span><span class="pay-date">Received Jun 15, 2025 · Cheque · Receipt: DEP-2025-4B</span></div>
+                <span class="pay-amount">$2,450.00</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Contact ───────────────────────────────────────────────────────── -->
+      <section class="page-section" id="page-contact">
+        <div class="section-header"><h2>Contact Us</h2></div>
+
+        <div class="contact-grid" style="margin-bottom: 20px;">
+          <div class="contact-card">
+            <div class="cc-icon">🏢</div>
+            <h4>Management Office</h4>
+            <p>
+              Level 1, Unit 101<br>
+              Harbourview Tower<br>
+              420 Harbour Drive, Vancouver, BC<br><br>
+              Mon–Fri: 9:00 AM – 5:00 PM<br><br>
+              <a href="tel:+16045550191">(604) 555-0191</a><br>
+              <a href="mailto:management@harbourviewproperties.ca">management@harbourviewproperties.ca</a>
+            </p>
+          </div>
+          <div class="contact-card">
+            <div class="cc-icon">🚨</div>
+            <h4>24-Hour Emergency Line</h4>
+            <p>
+              For urgent issues affecting health or safety:<br>
+              water leaks, heating failures, security issues,<br>
+              or lock-outs.<br><br>
+              <a href="tel:+16045550199" style="font-size: 18px; font-weight: 800;">(604) 555-0199</a><br><br>
+              Non-emergency issues should be submitted<br>
+              as a maintenance request via the portal.
+            </p>
+          </div>
+          <div class="contact-card">
+            <div class="cc-icon">🔧</div>
+            <h4>Maintenance Requests</h4>
+            <p>
+              Submit all non-emergency maintenance issues<br>
+              through the Maintenance section of this portal.<br><br>
+              Typical response time: <strong>1–3 business days</strong><br>
+              Urgent (non-emergency): <strong>Same/next business day</strong><br><br>
+              <a href="#" onclick="navigate('maintenance', document.querySelector('[onclick*=maintenance]')); return false;">Go to Maintenance →</a>
+            </p>
+          </div>
+          <div class="contact-card">
+            <div class="cc-icon">💬</div>
+            <h4>AI Lease Assistant</h4>
+            <p>
+              Have questions about your lease, building rules,<br>
+              pet policy, or move-out procedures?<br><br>
+              Our AI assistant can answer instantly — available<br>
+              24/7 from any page in this portal.<br><br>
+              <a href="#" onclick="openChat(); return false;">💬 Ask about your lease →</a>
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- end content-area -->
+  </div><!-- end main-wrapper -->
+
+  <!-- ── Chat Widget ─────────────────────────────────────────────────────── -->
+  <button class="chat-fab" id="chat-fab" onclick="openChat()">
+    💬 Ask about your lease
+    <span class="fab-badge">AI</span>
+  </button>
+
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-panel-header">
+      <div class="chat-avatar">🦑</div>
+      <div class="chat-meta">
+        <div class="chat-title">Lease Assistant</div>
+        <div class="chat-subtitle">Powered by Harbourview Properties</div>
+      </div>
+      <button class="chat-close" onclick="closeChat()">✕</button>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+      <!-- Initial bot greeting -->
+      <div class="chat-bubble bot">
+        <div class="bubble-meta">Lease Assistant</div>
+        Hi Alex! I can answer questions about your lease, building rules, pet policy, and move-out procedures. What would you like to know?
+      </div>
+      <div class="chat-suggestions">
+        <div class="sug-label">Suggested questions</div>
+        <button class="sug-btn" onclick="sendSuggestion(this)">📅 When does my lease end and what notice do I need to give?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">🐾 Can I get a dog? What are the breed restrictions?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">🚪 What are the move-out cleaning requirements?</button>
+        <button class="sug-btn" onclick="sendSuggestion(this)">💰 What happens if I need to leave before my lease ends?</button>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <textarea
+        id="chat-input"
+        placeholder="Ask about your lease, building rules, or move-out…"
+        rows="1"
+        onkeydown="handleInputKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button class="chat-send-btn" id="send-btn" onclick="handleSend()" title="Send">➤</button>
+    </div>
+    <div class="chat-disclaimer">Answers are drawn from your lease documents only.</div>
+  </div>
+
+  <script>
+    // ── Navigation ──────────────────────────────────────────────────────────
+
+    const PAGE_TITLES = {
+      dashboard:   'Dashboard',
+      lease:       'My Lease',
+      maintenance: 'Maintenance Requests',
+      payments:    'Payments',
+      contact:     'Contact Us',
+    };
+
+    function navigate(pageId, btn) {
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+      if (btn) btn.classList.add('active');
+      document.getElementById('page-title').textContent = PAGE_TITLES[pageId] || pageId;
+    }
+
+    // ── Chat widget open/close ──────────────────────────────────────────────
+
+    let chatOpen = false;
+
+    function openChat() {
+      chatOpen = true;
+      document.getElementById('chat-panel').classList.add('open');
+      document.getElementById('chat-fab').style.display = 'none';
+      setTimeout(() => document.getElementById('chat-input').focus(), 250);
+      scrollMessages();
+    }
+
+    function closeChat() {
+      chatOpen = false;
+      document.getElementById('chat-panel').classList.remove('open');
+      document.getElementById('chat-fab').style.display = '';
+    }
+
+    // ── Message helpers ────────────────────────────────────────────────────
+
+    function scrollMessages() {
+      const el = document.getElementById('chat-messages');
+      el.scrollTop = el.scrollHeight;
+    }
+
+    function appendMessage(role, text) {
+      const container = document.getElementById('chat-messages');
+      // Remove suggestions on first user message
+      const sugs = container.querySelector('.chat-suggestions');
+      if (sugs) sugs.remove();
+
+      const div = document.createElement('div');
+      div.className = 'chat-bubble ' + (role === 'user' ? 'user' : 'bot');
+      if (role === 'bot') {
+        div.innerHTML = '<div class="bubble-meta">Lease Assistant</div>' + escHtml(text);
+      } else {
+        div.textContent = text;
+      }
+      container.appendChild(div);
+      scrollMessages();
+      return div;
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+    }
+
+    function showTyping() {
+      const container = document.getElementById('chat-messages');
+      const ind = document.createElement('div');
+      ind.id = 'typing-ind';
+      ind.className = 'typing-indicator';
+      ind.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+      container.appendChild(ind);
+      scrollMessages();
+    }
+
+    function hideTyping() {
+      const ind = document.getElementById('typing-ind');
+      if (ind) ind.remove();
+    }
+
+    // ── Input handling ─────────────────────────────────────────────────────
+
+    function autoResize(el) {
+      el.style.height = 'auto';
+      el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+    }
+
+    function handleInputKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    }
+
+    async function handleSend() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      input.style.height = 'auto';
+      document.getElementById('send-btn').disabled = true;
+
+      appendMessage('user', text);
+      showTyping();
+
+      try {
+        const answer = await askQuestion(text);
+        hideTyping();
+        appendMessage('bot', answer);
+      } catch (err) {
+        hideTyping();
+        appendMessage('bot', 'Sorry, something went wrong. Please try again or contact building management at (604) 555-0191.');
+      } finally {
+        document.getElementById('send-btn').disabled = false;
+        input.focus();
+      }
+    }
+
+    function sendSuggestion(btn) {
+      const text = btn.textContent.replace(/^[^\w]+/, '').trim();
+      document.getElementById('chat-input').value = text;
+      handleSend();
+    }
+
+    // ── ────────────────────────────────────────────────────────────────────
+    // TODO: ULTIMATE CALAMARI INTEGRATION — replace this function with API call
+    // ── ────────────────────────────────────────────────────────────────────
+    //
+    // Replace the body of askQuestion() with a call to your Ultimate Calamari
+    // RAG endpoint. Example:
+    //
+    //   const API_KEY  = "sk-your-key-here";
+    //   const LIBRARY_ID = "your-harbourview-library-uuid";
+    //   const BASE_URL   = "http://127.0.0.1:8000";
+    //
+    //   const res = await fetch(`${BASE_URL}/v1/libraries/${LIBRARY_ID}/query`, {
+    //     method: "POST",
+    //     headers: { "Authorization": `Bearer ${API_KEY}`, "Content-Type": "application/json" },
+    //     body: JSON.stringify({ prompt: userPrompt, top_k: 20, top_n: 5 }),
+    //   });
+    //   const data = await res.json();
+    //   return data.answer;
+    //
+    async function askQuestion(userPrompt) {
+      // Simulate network latency for realistic demo feel
+      await new Promise(resolve => setTimeout(resolve, 1200 + Math.random() * 600));
+      return "This feature is coming soon.";
+    }
+  </script>
+</body>
+</html>

@@ -22,13 +22,20 @@ import cohere
 from qdrant_client import AsyncQdrantClient
 from supabase import Client
 
+from app.core.embedding import embed_texts
 from app.core.ingestion import run_ingestion
 from app.core.parsing import SUPPORTED_CONTENT_TYPES, content_type_from_filename
 from app.core.user_auth import get_current_user
 from app.db import supabase as supa_db
 from app.db import qdrant as qdrant_db
 from app.dependencies import get_cohere, get_qdrant, get_supabase
-from app.models.schemas import DocumentCreate, DocumentResponse, DocumentStatus
+from app.models.schemas import (
+    DocumentCreate,
+    DocumentResponse,
+    DocumentSearchRequest,
+    DocumentSearchResult,
+    DocumentStatus,
+)
 
 router = APIRouter()
 
@@ -123,6 +130,62 @@ async def list_documents(
 ) -> list[DocumentResponse]:
     rows = await supa_db.list_documents(supabase, owner_id)
     return [DocumentResponse(**r) for r in rows]
+
+
+# ---------------------------------------------------------------------------
+# POST /v1/documents/search  — semantic search across all user documents
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/search",
+    response_model=list[DocumentSearchResult],
+    summary="Semantic search across all ready documents owned by the caller",
+)
+async def search_documents(
+    body: DocumentSearchRequest,
+    owner_id: UUID = Depends(get_current_user),
+    supabase: Client = Depends(get_supabase),
+    qdrant: AsyncQdrantClient = Depends(get_qdrant),
+    cohere_client: cohere.AsyncClientV2 = Depends(get_cohere),
+) -> list[DocumentSearchResult]:
+    # 1. Resolve the caller's ready document IDs (only indexed docs yield hits)
+    rows = await supa_db.list_documents(supabase, owner_id)
+    ready_ids = [r["id"] for r in rows if r.get("status") == "ready"]
+    if not ready_ids:
+        return []
+
+    # 2. Embed the query
+    vectors = await embed_texts(cohere_client, [body.query], input_type="search_query")
+    query_vector = vectors[0]
+
+    # 3. Vector search scoped to the caller's documents.
+    #    Use a generous top_k so each document gets a fair chance to surface
+    #    its best chunk (roughly 10 candidates per document, capped at 500).
+    top_k = min(500, max(50, len(ready_ids) * 10))
+    hits = await qdrant_db.search_by_document_ids(
+        qdrant, query_vector, ready_ids, top_k=top_k
+    )
+
+    # 4. Group by document_id — keep the hit with the highest score per doc
+    best: dict[str, dict] = {}
+    for hit in hits:
+        doc_id = hit["document_id"]
+        if doc_id not in best or hit["score"] > best[doc_id]["score"]:
+            best[doc_id] = hit
+
+    # 5. Sort by score descending and return
+    return [
+        DocumentSearchResult(
+            document_id=doc_id,
+            filename=hit["filename"],
+            relevance_score=round(float(hit["score"]), 4),
+            top_chunk_text=hit["text"],
+        )
+        for doc_id, hit in sorted(
+            best.items(), key=lambda kv: kv[1]["score"], reverse=True
+        )
+    ]
 
 
 # ---------------------------------------------------------------------------
