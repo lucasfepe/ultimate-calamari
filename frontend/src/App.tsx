@@ -81,7 +81,8 @@ function AppShell({ session }: { session: Session }) {
 
   // First-time guide redirect
   useEffect(() => {
-    if (!deepLinked.current && !localStorage.getItem(HAS_SEEN_GUIDE_KEY)) {
+    const seenGuide = localStorage.getItem(HAS_SEEN_GUIDE_KEY);
+    if (!deepLinked.current && (!seenGuide || seenGuide === "false")) {
       setPage("guide");
     }
   }, []);
