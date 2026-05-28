@@ -107,6 +107,32 @@ export default function Login() {
 
         {/* Card */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+
+          {/* Demo / judge access — top of card */}
+          <button
+            type="button"
+            onClick={handleDemoSignIn}
+            disabled={demoLoading}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-teal-700 hover:bg-teal-600 active:bg-teal-800 py-2.5 text-sm font-semibold text-white transition-colors shadow-sm shadow-teal-900/20 disabled:opacity-60 mb-2"
+          >
+            {demoLoading
+              ? <Loader2 className="w-4 h-4 animate-spin" />
+              : <span className="text-base leading-none">🦑</span>
+            }
+            {demoLoading ? "Signing in…" : "Try the Demo"}
+          </button>
+          <p className="text-center text-xs text-slate-400 mb-5">No account needed — explore instantly</p>
+
+          {/* Divider before regular auth */}
+          <div className="relative mb-5">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-white px-3 text-xs text-slate-400">or sign in with your account</span>
+            </div>
+          </div>
+
           <h2 className="text-base font-semibold text-slate-900 mb-6">
             {mode === "signin" && "Sign in to your account"}
             {mode === "signup" && "Create an account"}
@@ -209,35 +235,6 @@ export default function Login() {
               {mode === "forgot" && "Send reset link"}
             </button>
           </form>
-        </div>
-
-        {/* Demo access */}
-        <div className="mt-5">
-          <div className="relative mb-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-slate-50 px-3 text-xs text-slate-400">or</span>
-            </div>
-          </div>
-          <div className="text-center">
-            <p className="text-xs text-slate-500 mb-3">
-              Want to explore without signing up? Use the demo account.
-            </p>
-            <button
-              type="button"
-              onClick={handleDemoSignIn}
-              disabled={demoLoading}
-              className="inline-flex items-center gap-2 rounded-xl bg-teal-700 hover:bg-teal-600 active:bg-teal-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors shadow-sm shadow-teal-900/30 disabled:opacity-60"
-            >
-              {demoLoading
-                ? <Loader2 className="w-4 h-4 animate-spin" />
-                : <span className="text-base leading-none">🦑</span>
-              }
-              {demoLoading ? "Signing in…" : "Try the Demo"}
-            </button>
-          </div>
         </div>
 
         {/* Switch mode */}
