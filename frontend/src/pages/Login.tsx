@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
@@ -15,7 +15,6 @@ function GoogleIcon() {
 
 const DEMO_EMAIL    = "demo@ultimatecalamari.app";
 const DEMO_PASSWORD = "D3m0Calamari!2426";
-const DEMO_PIN      = "2426";
 
 type Mode = "signin" | "signup" | "forgot";
 
@@ -29,72 +28,19 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // Demo access
-  const [showPinEntry, setShowPinEntry] = useState(false);
-  const [pin, setPin] = useState(["", "", "", ""]);
-  const [pinError, setPinError] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
-  const pinRefs = [
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-  ];
 
   const reset = () => { setError(null); setNotice(null); };
 
-  // Focus first PIN cell when panel opens
-  useEffect(() => {
-    if (showPinEntry) {
-      setTimeout(() => pinRefs[0].current?.focus(), 50);
-    } else {
-      setPin(["", "", "", ""]);
-      setPinError(false);
-    }
-  }, [showPinEntry]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handlePinChange = (idx: number, value: string) => {
-    const digit = value.replace(/\D/g, "").slice(-1);
-    const next = [...pin];
-    next[idx] = digit;
-    setPin(next);
-    setPinError(false);
-    if (digit && idx < 3) pinRefs[idx + 1].current?.focus();
-    if (next.every((d) => d !== "") && next.join("") === DEMO_PIN) {
-      handleDemoSignIn(next.join(""));
-    }
-  };
-
-  const handlePinKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !pin[idx] && idx > 0) {
-      pinRefs[idx - 1].current?.focus();
-    }
-    if (e.key === "Enter") {
-      const code = pin.join("");
-      if (code.length === 4) handleDemoSignIn(code);
-    }
-  };
-
-  const handleDemoSignIn = async (code: string) => {
-    if (code !== DEMO_PIN) {
-      setPinError(true);
-      setPin(["", "", "", ""]);
-      setTimeout(() => pinRefs[0].current?.focus(), 30);
-      return;
-    }
+  const handleDemoSignIn = async () => {
     setDemoLoading(true);
-    setPinError(false);
+    reset();
     const { error } = await supabase.auth.signInWithPassword({
       email: DEMO_EMAIL,
       password: DEMO_PASSWORD,
     });
-    if (error) {
-      setPinError(true);
-      setPin(["", "", "", ""]);
-      setTimeout(() => pinRefs[0].current?.focus(), 30);
-    } else {
-      localStorage.setItem("hasSeenGuide", "false");
-    }
+    if (error) setError(error.message);
+    else localStorage.setItem("hasSeenGuide", "false");
     setDemoLoading(false);
   };
 
@@ -267,7 +213,6 @@ export default function Login() {
 
         {/* Demo access */}
         <div className="mt-5">
-          {/* Divider */}
           <div className="relative mb-5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-200" />
@@ -276,69 +221,23 @@ export default function Login() {
               <span className="bg-slate-50 px-3 text-xs text-slate-400">or</span>
             </div>
           </div>
-
-          {!showPinEntry ? (
-            <div className="text-center">
-              <p className="text-xs text-slate-500 mb-3">
-                Want to explore without signing up? Use the demo account.
-              </p>
-              <button
-                type="button"
-                onClick={() => setShowPinEntry(true)}
-                className="inline-flex items-center gap-2 rounded-xl bg-teal-700 hover:bg-teal-600 active:bg-teal-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors shadow-sm shadow-teal-900/30"
-              >
-                <span className="text-base leading-none">🦑</span>
-                Try the Demo
-              </button>
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-teal-200 bg-teal-50/60 p-5 text-center">
-              <p className="text-sm font-semibold text-teal-900 mb-0.5">Demo access</p>
-              <p className="text-xs text-teal-700/80 mb-4">Enter the 4-digit PIN to continue</p>
-
-              {/* PIN cells */}
-              <div className="flex items-center justify-center gap-2.5 mb-3">
-                {pin.map((digit, i) => (
-                  <input
-                    key={i}
-                    ref={pinRefs[i]}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handlePinChange(i, e.target.value)}
-                    onKeyDown={(e) => handlePinKeyDown(i, e)}
-                    disabled={demoLoading}
-                    className={`w-12 h-14 rounded-xl border-2 text-center text-xl font-bold text-slate-800 bg-white outline-none transition-colors disabled:opacity-50 ${
-                      pinError
-                        ? "border-red-400 text-red-600 bg-red-50"
-                        : digit
-                        ? "border-teal-400"
-                        : "border-slate-200 focus:border-teal-500"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              {pinError && (
-                <p className="text-xs font-medium text-red-500 mb-2">Incorrect code — try again</p>
-              )}
-
-              {demoLoading && (
-                <div className="flex items-center justify-center gap-2 text-xs text-teal-700 mb-2">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" /> Signing in…
-                </div>
-              )}
-
-              <button
-                type="button"
-                onClick={() => setShowPinEntry(false)}
-                className="text-xs text-slate-400 hover:text-slate-600 transition-colors mt-1"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
+          <div className="text-center">
+            <p className="text-xs text-slate-500 mb-3">
+              Want to explore without signing up? Use the demo account.
+            </p>
+            <button
+              type="button"
+              onClick={handleDemoSignIn}
+              disabled={demoLoading}
+              className="inline-flex items-center gap-2 rounded-xl bg-teal-700 hover:bg-teal-600 active:bg-teal-800 px-5 py-2.5 text-sm font-semibold text-white transition-colors shadow-sm shadow-teal-900/30 disabled:opacity-60"
+            >
+              {demoLoading
+                ? <Loader2 className="w-4 h-4 animate-spin" />
+                : <span className="text-base leading-none">🦑</span>
+              }
+              {demoLoading ? "Signing in…" : "Try the Demo"}
+            </button>
+          </div>
         </div>
 
         {/* Switch mode */}

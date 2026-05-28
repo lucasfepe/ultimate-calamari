@@ -4,6 +4,10 @@ Demo flow:
 
 localStorage.removeItem("hasSeenGuide")
 
+localStorage.clear()
+sessionStorage.clear()
+location.reload()
+
 1. Log in with Google (shows auth)
 2. Upload all 3 documents at once (shows multi-upload, watch status update live)
 3. Create a library called 
