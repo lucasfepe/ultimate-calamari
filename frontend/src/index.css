@@ -10,15 +10,15 @@
   }
 
   body {
-    @apply text-slate-900 bg-slate-50;
+    @apply text-goc-text bg-goc-grey;
   }
 
   ::selection {
-    @apply bg-blue-200 text-blue-900;
+    @apply bg-goc-blue-muted text-goc-navy;
   }
 
   :focus-visible {
-    @apply outline-2 outline-offset-2 outline-blue-400;
+    @apply outline-2 outline-offset-2 outline-goc-blue;
   }
 }
 

@@ -30,7 +30,7 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 
 const STATUS_CONFIG = {
   pending:    { bg: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-200",   dot: "bg-amber-400" },
-  processing: { bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-200",    dot: "bg-blue-500" },
+  processing: { bg: "bg-goc-blue-light",    text: "text-goc-blue",    border: "border-goc-blue-muted",    dot: "bg-goc-blue" },
   ready:      { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", dot: "bg-emerald-400" },
   failed:     { bg: "bg-red-50",     text: "text-red-700",     border: "border-red-200",     dot: "bg-red-400" },
 } as const;
@@ -334,7 +334,7 @@ export default function Libraries() {
       <div className="max-w-4xl mx-auto">
         <button
           onClick={() => setSelectedLib(null)}
-          className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium mb-6 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-goc-blue hover:text-goc-blue-hover font-medium mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Knowledge Bases
         </button>
@@ -373,7 +373,7 @@ export default function Libraries() {
             )}
             <button
               onClick={() => setShowAddDoc(!showAddDoc)}
-              className="flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              className="flex items-center gap-1.5 text-sm font-medium text-goc-blue hover:text-goc-blue-hover transition-colors"
             >
               <Plus className="w-4 h-4" /> Add Document
             </button>
@@ -381,7 +381,7 @@ export default function Libraries() {
         </div>
 
         {showAddDoc && (
-          <div className="mb-4 rounded-xl border border-blue-200 bg-white shadow-sm overflow-hidden">
+          <div className="mb-4 rounded-xl border border-goc-blue-muted bg-white shadow-sm overflow-hidden">
 
             {/* ── Picker toolbar ── */}
             {aiSearchMode ? (
@@ -469,7 +469,7 @@ export default function Libraries() {
               </div>
             ) : (
               /* Regular toolbar */
-              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 bg-blue-50/40">
+              <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 bg-goc-blue-light/40">
                 {/* Select-all checkbox */}
                 {availableFiltered.length > 0 && (
                   <input
@@ -485,7 +485,7 @@ export default function Libraries() {
                       }
                     }}
                     title={allSelected ? "Deselect all" : "Select all available"}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/20 shrink-0 cursor-pointer"
+                    className="w-4 h-4 rounded border-slate-300 text-goc-blue focus:ring-goc-blue/20 shrink-0 cursor-pointer"
                   />
                 )}
 
@@ -497,7 +497,7 @@ export default function Libraries() {
                     onChange={(e) => { setAddDocSearch(e.target.value); setAddDocPage(1); }}
                     placeholder="Search ready documents…"
                     autoFocus
-                    className="w-full rounded-md border border-slate-200 pl-8 pr-8 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white transition-colors"
+                    className="w-full rounded-md border border-slate-200 pl-8 pr-8 py-1.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue bg-white transition-colors"
                   />
                   {addDocSearch && (
                     <button onClick={() => { setAddDocSearch(""); setAddDocPage(1); }} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -512,7 +512,7 @@ export default function Libraries() {
                   <select
                     value={addDocSort}
                     onChange={(e) => { setAddDocSort(e.target.value as SortOption); setAddDocPage(1); }}
-                    className="pl-6 pr-2 py-1.5 text-xs rounded-md border border-slate-200 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors appearance-none cursor-pointer"
+                    className="pl-6 pr-2 py-1.5 text-xs rounded-md border border-slate-200 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue transition-colors appearance-none cursor-pointer"
                   >
                     {SORT_OPTIONS.map((o) => (
                       <option key={o.value} value={o.value}>{o.label}</option>
@@ -538,7 +538,7 @@ export default function Libraries() {
 
             {/* ── Bulk action bar — slides in when docs are selected ── */}
             {(selectedDocIds.size > 0 || bulkAdding) && (
-              <div className="flex items-center justify-between px-4 py-2.5 bg-blue-600 text-white">
+              <div className="flex items-center justify-between px-4 py-2.5 bg-goc-blue text-white">
                 <div className="flex items-center gap-2">
                   {bulkAdding && bulkProgress ? (
                     <>
@@ -547,7 +547,7 @@ export default function Libraries() {
                         Adding {bulkProgress.done} of {bulkProgress.total}…
                       </span>
                       {/* Progress bar */}
-                      <div className="w-24 h-1.5 bg-blue-400/50 rounded-full overflow-hidden">
+                      <div className="w-24 h-1.5 bg-goc-blue-accent/50 rounded-full overflow-hidden">
                         <div
                           className="h-full bg-white rounded-full transition-all duration-300"
                           style={{ width: `${(bulkProgress.done / bulkProgress.total) * 100}%` }}
@@ -564,7 +564,7 @@ export default function Libraries() {
                   {!bulkAdding && (
                     <button
                       onClick={() => setSelectedDocIds(new Set())}
-                      className="text-xs text-blue-200 hover:text-white transition-colors"
+                      className="text-xs text-goc-blue-muted hover:text-white transition-colors"
                     >
                       Clear
                     </button>
@@ -572,7 +572,7 @@ export default function Libraries() {
                   <button
                     onClick={handleBulkAdd}
                     disabled={bulkAdding || selectedDocIds.size === 0}
-                    className="flex items-center gap-1.5 text-xs font-semibold bg-white text-blue-700 hover:bg-blue-50 disabled:opacity-60 px-3 py-1.5 rounded-md transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-semibold bg-white text-goc-blue hover:bg-goc-blue-light disabled:opacity-60 px-3 py-1.5 rounded-md transition-colors"
                   >
                     {bulkAdding
                       ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -646,7 +646,7 @@ export default function Libraries() {
                         alreadyAdded
                           ? "opacity-50 bg-slate-50/60"
                           : isChecked
-                            ? isAiRow ? "bg-violet-50/60" : "bg-blue-50/60"
+                            ? isAiRow ? "bg-violet-50/60" : "bg-goc-blue-light/60"
                             : "hover:bg-slate-50 cursor-pointer"
                       }`}
                     >
@@ -669,7 +669,7 @@ export default function Libraries() {
                           className={`w-4 h-4 rounded border-slate-300 focus:ring-2 shrink-0 cursor-pointer ${
                             isAiRow
                               ? "text-violet-600 focus:ring-violet-500/20"
-                              : "text-blue-600 focus:ring-blue-500/20"
+                              : "text-goc-blue focus:ring-goc-blue/20"
                           }`}
                         />
                       )}
@@ -715,7 +715,7 @@ export default function Libraries() {
                         <button
                           onClick={(e) => { e.stopPropagation(); handleAddDoc(row.id); }}
                           disabled={addingDocId === row.id || bulkAdding}
-                          className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 disabled:opacity-50 shrink-0 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-colors"
+                          className="flex items-center gap-1 text-xs font-medium text-goc-blue hover:text-goc-blue-hover disabled:opacity-50 shrink-0 bg-goc-blue-light hover:bg-goc-blue-muted px-2.5 py-1 rounded-md transition-colors"
                         >
                           {addingDocId === row.id
                             ? <Loader2 className="w-3 h-3 animate-spin" />
@@ -758,9 +758,9 @@ export default function Libraries() {
         )}
 
         {libDocs.length === 0 ? (
-          <div className="rounded-xl border-2 border-dashed border-blue-200 bg-blue-50/40 p-8 text-center">
-            <div className="w-14 h-14 rounded-full bg-white border border-blue-100 shadow-sm flex items-center justify-center mx-auto mb-4">
-              <FolderOpen className="w-6 h-6 text-blue-400" />
+          <div className="rounded-xl border-2 border-dashed border-goc-blue-muted bg-goc-blue-light/40 p-8 text-center">
+            <div className="w-14 h-14 rounded-full bg-white border border-goc-blue-muted shadow-sm flex items-center justify-center mx-auto mb-4">
+              <FolderOpen className="w-6 h-6 text-goc-blue-accent" />
             </div>
             <h3 className="text-sm font-semibold text-slate-800 mb-1">
               This knowledge base has no documents yet
@@ -771,7 +771,7 @@ export default function Libraries() {
             <div className="flex items-center justify-center gap-3">
               <button
                 onClick={() => setShowAddDoc(true)}
-                className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+                className="flex items-center gap-1.5 rounded-lg bg-goc-blue px-4 py-2 text-sm font-medium text-white hover:bg-goc-blue-hover transition-colors shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 Add documents
@@ -795,7 +795,7 @@ export default function Libraries() {
                   value={libDocsSearch}
                   onChange={(e) => { setLibDocsSearch(e.target.value); setLibDocsPage(1); }}
                   placeholder="Search documents in this knowledge base…"
-                  className="w-full rounded-lg border border-slate-200 pl-9 pr-9 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+                  className="w-full rounded-lg border border-slate-200 pl-9 pr-9 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue transition-colors"
                 />
                 {libDocsSearch && (
                   <button onClick={() => { setLibDocsSearch(""); setLibDocsPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -813,7 +813,7 @@ export default function Libraries() {
                   value={libDocsSearch}
                   onChange={(e) => { setLibDocsSearch(e.target.value); setLibDocsPage(1); }}
                   placeholder="Search documents in this knowledge base…"
-                  className="w-full rounded-lg border border-slate-200 pl-9 pr-9 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+                  className="w-full rounded-lg border border-slate-200 pl-9 pr-9 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue transition-colors"
                 />
                 {libDocsSearch && (
                   <button onClick={() => { setLibDocsSearch(""); setLibDocsPage(1); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -826,7 +826,7 @@ export default function Libraries() {
             {filteredLibDocs.length === 0 ? (
               <div className="text-center py-8">
                 <p className="text-sm text-slate-500">No documents match &ldquo;{libDocsSearch}&rdquo;</p>
-                <button onClick={() => setLibDocsSearch("")} className="text-xs text-blue-600 hover:text-blue-700 mt-1">Clear search</button>
+                <button onClick={() => setLibDocsSearch("")} className="text-xs text-goc-blue hover:text-goc-blue-hover mt-1">Clear search</button>
               </div>
             ) : (
               <>
@@ -897,7 +897,7 @@ export default function Libraries() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          className="flex items-center gap-1.5 rounded-lg bg-goc-blue px-4 py-2.5 text-sm font-medium text-white hover:bg-goc-blue-hover transition-colors shadow-sm"
         >
           <Plus className="w-4 h-4" /> New Knowledge Base
         </button>
@@ -913,7 +913,7 @@ export default function Libraries() {
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Knowledge base name"
               autoFocus
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue transition-colors"
               onKeyDown={(e) => { if (e.key === "Enter") handleCreate(); }}
             />
             <textarea
@@ -921,13 +921,13 @@ export default function Libraries() {
               onChange={(e) => setNewDesc(e.target.value)}
               placeholder="Description (optional)"
               rows={2}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 resize-none transition-colors"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue resize-none transition-colors"
             />
             <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={handleCreate}
                 disabled={creating || !newName.trim()}
-                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                className="rounded-lg bg-goc-blue px-4 py-2 text-sm font-medium text-white hover:bg-goc-blue-hover disabled:opacity-50 transition-colors"
               >
                 {creating ? <Loader2 className="w-4 h-4 animate-spin inline" /> : "Create"}
               </button>
@@ -952,7 +952,7 @@ export default function Libraries() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-goc-blue animate-spin" />
         </div>
       ) : libraries.length === 0 ? (
         <div className="text-center py-16">
@@ -968,14 +968,14 @@ export default function Libraries() {
             <button
               key={lib.id}
               onClick={() => openLibrary(lib)}
-              className="text-left rounded-xl border border-slate-200 bg-white p-5 hover:border-blue-300 hover:shadow-md transition-all group"
+              className="text-left rounded-xl border border-slate-200 bg-white p-5 hover:border-goc-blue-border hover:shadow-md transition-all group"
             >
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
-                  <BookOpen className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-lg bg-goc-blue-light flex items-center justify-center shrink-0 group-hover:bg-goc-blue-muted transition-colors">
+                  <BookOpen className="w-5 h-5 text-goc-blue" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-semibold text-slate-800 group-hover:text-blue-700 transition-colors truncate">
+                  <h3 className="text-sm font-semibold text-slate-800 group-hover:text-goc-blue-hover transition-colors truncate">
                     {lib.name}
                   </h3>
                   {lib.description && (

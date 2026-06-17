@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Loader2, AlertCircle, Eye, EyeOff, FileSearch } from "lucide-react";
 import { supabase } from "../lib/supabase";
 
 function GoogleIcon() {
@@ -13,8 +13,8 @@ function GoogleIcon() {
   );
 }
 
-const DEMO_EMAIL    = "demo@ultimatecalamari.app";
-const DEMO_PASSWORD = "D3m0Calamari!2426";
+const DEMO_EMAIL    = "visitor@archivio.app";
+const DEMO_PASSWORD = "strong_password";
 
 type Mode = "signin" | "signup" | "forgot";
 
@@ -55,7 +55,6 @@ export default function Login() {
       setError(error.message);
       setGoogleLoading(false);
     }
-    // On success the browser redirects — no further action needed here
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,10 +80,8 @@ export default function Login() {
         return;
       }
 
-      // signin
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      // App.tsx handles onAuthStateChange → renders main app automatically
 
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : String(err));
@@ -94,36 +91,29 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-goc-grey flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-[#0b1d35] flex items-center justify-center mb-4 shadow-lg shadow-slate-900/30">
-            <span className="text-2xl leading-none">🦑</span>
+          <div className="w-12 h-12 rounded-lg bg-goc-navy flex items-center justify-center mb-4">
+            <FileSearch className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-slate-900">Ultimate Calamari</h1>
-          <p className="text-sm text-slate-500 mt-1">Your Marine AI Knowledge Assistant</p>
+          <h1 className="text-xl font-semibold text-goc-text">Archivio</h1>
+          <p className="text-sm text-slate-500 mt-1">Secure Document Intelligence for Government</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+        <div className="bg-white rounded-lg border border-slate-200 p-8">
 
-          {/* Demo / judge access — top of card */}
           <button
             type="button"
             onClick={handleDemoSignIn}
             disabled={demoLoading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-teal-700 hover:bg-teal-600 active:bg-teal-800 py-2.5 text-sm font-semibold text-white transition-colors shadow-sm shadow-teal-900/20 disabled:opacity-60 mb-2"
+            className="w-full flex items-center justify-center gap-2 rounded-md bg-goc-blue hover:bg-goc-blue-hover active:bg-goc-blue-hover py-2.5 text-sm font-medium text-white transition-colors disabled:opacity-60 mb-2"
           >
-            {demoLoading
-              ? <Loader2 className="w-4 h-4 animate-spin" />
-              : <span className="text-base leading-none">🦑</span>
-            }
-            {demoLoading ? "Signing in…" : "Try the Demo"}
+            {demoLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {demoLoading ? "Signing in…" : "Access Demo Environment"}
           </button>
-          <p className="text-center text-xs text-slate-400 mb-5">No account needed — explore instantly</p>
+          <p className="text-center text-xs text-slate-400 mb-5">No account required — explore the platform instantly</p>
 
-          {/* Divider before regular auth */}
           <div className="relative mb-5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-200" />
@@ -133,24 +123,22 @@ export default function Login() {
             </div>
           </div>
 
-          <h2 className="text-base font-semibold text-slate-900 mb-6">
+          <h2 className="text-base font-semibold text-goc-text mb-6">
             {mode === "signin" && "Sign in to your account"}
             {mode === "signup" && "Create an account"}
             {mode === "forgot" && "Reset your password"}
           </h2>
 
-          {/* Google OAuth */}
           <button
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading || loading}
-            className="w-full flex items-center justify-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition-colors shadow-sm"
+            className="w-full flex items-center justify-center gap-3 rounded-md border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-goc-text hover:bg-goc-grey disabled:opacity-50 transition-colors"
           >
             {googleLoading ? <Loader2 className="w-4 h-4 animate-spin text-slate-400" /> : <GoogleIcon />}
             Continue with Google
           </button>
 
-          {/* Divider */}
           <div className="relative my-1">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-200" />
@@ -161,13 +149,13 @@ export default function Login() {
           </div>
 
           {notice && (
-            <div className="mb-4 rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">
+            <div className="mb-4 rounded-md bg-emerald-50 border border-emerald-200 px-4 py-3 text-sm text-emerald-700">
               {notice}
             </div>
           )}
 
           {error && (
-            <div className="mb-4 flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
+            <div className="mb-4 flex items-start gap-2 rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -175,7 +163,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">
+              <label className="block text-sm font-medium text-goc-text mb-1.5">
                 Email address
               </label>
               <input
@@ -185,13 +173,13 @@ export default function Login() {
                 required
                 autoComplete="email"
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+                className="w-full rounded-md border border-slate-200 px-3 py-2.5 text-sm text-goc-text placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue transition-colors"
               />
             </div>
 
             {mode !== "forgot" && (
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5">
+                <label className="block text-sm font-medium text-goc-text mb-1.5">
                   Password
                 </label>
                 <div className="relative">
@@ -202,7 +190,7 @@ export default function Login() {
                     required
                     autoComplete={mode === "signup" ? "new-password" : "current-password"}
                     placeholder="••••••••"
-                    className="w-full rounded-lg border border-slate-200 px-3 py-2.5 pr-10 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+                    className="w-full rounded-md border border-slate-200 px-3 py-2.5 pr-10 text-sm text-goc-text placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue transition-colors"
                   />
                   <button
                     type="button"
@@ -216,7 +204,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => { setMode("forgot"); reset(); }}
-                    className="mt-1.5 text-xs text-blue-600 hover:text-blue-700"
+                    className="mt-1.5 text-xs text-goc-blue hover:text-goc-blue-hover"
                   >
                     Forgot your password?
                   </button>
@@ -227,7 +215,7 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+              className="w-full rounded-md bg-goc-blue py-2.5 text-sm font-medium text-white hover:bg-goc-blue-hover disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {mode === "signin" && "Sign in"}
@@ -237,19 +225,18 @@ export default function Login() {
           </form>
         </div>
 
-        {/* Switch mode */}
         <p className="text-center text-sm text-slate-500 mt-6">
           {mode === "signin" ? (
             <>
               Don&apos;t have an account?{" "}
-              <button onClick={() => { setMode("signup"); reset(); }} className="text-blue-600 hover:text-blue-700 font-medium">
+              <button onClick={() => { setMode("signup"); reset(); }} className="text-goc-blue hover:text-goc-blue-hover font-medium">
                 Sign up
               </button>
             </>
           ) : (
             <>
               Already have an account?{" "}
-              <button onClick={() => { setMode("signin"); reset(); }} className="text-blue-600 hover:text-blue-700 font-medium">
+              <button onClick={() => { setMode("signin"); reset(); }} className="text-goc-blue hover:text-goc-blue-hover font-medium">
                 Sign in
               </button>
             </>

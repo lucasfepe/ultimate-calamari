@@ -1,4 +1,4 @@
-# 🦑 Ultimate Calamari
+
 
 Your Marine AI Knowledge Assistant — upload documents, organise them into libraries, and chat with your knowledge base.
 
@@ -115,7 +115,7 @@ Run these SQL scripts in order in the **Supabase SQL Editor**:
 ## Project Structure
 
 ```
-Ultimate Calamari/
+/
 ├── app/
 │   ├── api/v1/routes/      # FastAPI route handlers
 │   ├── core/               # Business logic (ingestion, RAG, auth, JWT)

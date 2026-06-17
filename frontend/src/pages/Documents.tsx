@@ -9,7 +9,7 @@ const PAGE_SIZE = 20;
 
 const STATUS_CONFIG = {
   pending:    { bg: "bg-amber-50",   text: "text-amber-700",   border: "border-amber-200",   dot: "bg-amber-400",   label: "Pending" },
-  processing: { bg: "bg-blue-50",    text: "text-blue-700",    border: "border-blue-200",    dot: "bg-blue-500",    label: "Processing" },
+  processing: { bg: "bg-goc-blue-light",    text: "text-goc-blue",    border: "border-goc-blue-muted",    dot: "bg-goc-blue",    label: "Processing" },
   ready:      { bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200", dot: "bg-emerald-400", label: "Ready" },
   failed:     { bg: "bg-red-50",     text: "text-red-700",     border: "border-red-200",     dot: "bg-red-400",     label: "Failed" },
 } as const;
@@ -27,8 +27,8 @@ const STATUS_FILTER_OPTIONS: { value: StatusFilter; label: string }[] = [
 
 const FILE_TYPE_CONFIG: Record<string, { label: string; className: string }> = {
   pdf:  { label: "PDF",  className: "bg-red-50 text-red-600 border-red-100" },
-  docx: { label: "DOCX", className: "bg-blue-50 text-blue-600 border-blue-100" },
-  doc:  { label: "DOC",  className: "bg-blue-50 text-blue-600 border-blue-100" },
+  docx: { label: "DOCX", className: "bg-goc-blue-light text-goc-blue border-goc-blue-muted" },
+  doc:  { label: "DOC",  className: "bg-goc-blue-light text-goc-blue border-goc-blue-muted" },
   txt:  { label: "TXT",  className: "bg-slate-100 text-slate-500 border-slate-200" },
 };
 
@@ -244,7 +244,7 @@ export default function Documents() {
             </span>
           )}
           {inProgressCount > 0 && (
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" title="Ingestion in progress" />
+            <span className="w-1.5 h-1.5 rounded-full bg-goc-blue animate-pulse" title="Ingestion in progress" />
           )}
         </button>
       </div>
@@ -257,7 +257,7 @@ export default function Documents() {
             onDragLeave={() => setDragActive(false)}
             onDrop={handleDrop}
             className={`relative rounded-xl border-2 border-dashed p-10 text-center transition-all duration-200 ${
-              dragActive ? "border-blue-400 bg-blue-50/60 scale-[1.01]" : "border-slate-200 bg-white hover:border-slate-300"
+              dragActive ? "border-goc-blue bg-goc-blue-light/60 scale-[1.01]" : "border-slate-200 bg-white hover:border-slate-300"
             }`}
           >
             <input
@@ -271,9 +271,9 @@ export default function Documents() {
             <div className="flex flex-col items-center gap-3">
               {isUploading ? (
                 <>
-                  <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+                  <Loader2 className="w-10 h-10 text-goc-blue animate-spin" />
                   <div>
-                    <p className="text-sm font-medium text-blue-600">
+                    <p className="text-sm font-medium text-goc-blue">
                       Uploading {uploading.length} file{uploading.length > 1 ? "s" : ""}…
                     </p>
                     <div className="mt-2 flex flex-wrap justify-center gap-1.5">
@@ -287,12 +287,12 @@ export default function Documents() {
                 </>
               ) : (
                 <>
-                  <div className="w-14 h-14 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center">
-                    <Upload className="w-6 h-6 text-blue-500" />
+                  <div className="w-14 h-14 rounded-full bg-goc-blue-light border border-goc-blue-muted flex items-center justify-center">
+                    <Upload className="w-6 h-6 text-goc-blue" />
                   </div>
                   <div>
                     <p className="text-base font-medium text-slate-700">
-                      Drop files here or <span className="text-blue-600">browse</span>
+                      Drop files here or <span className="text-goc-blue">browse</span>
                     </p>
                     <p className="text-sm text-slate-400 mt-1">PDF, DOCX, or TXT · up to 50 MB · multiple files at once</p>
                   </div>
@@ -324,7 +324,7 @@ export default function Documents() {
                 value={search}
                 onChange={(e) => handleSearch(e.target.value)}
                 placeholder="Search by filename…"
-                className="w-full rounded-lg border border-slate-200 pl-9 pr-9 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+                className="w-full rounded-lg border border-slate-200 pl-9 pr-9 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue transition-colors"
               />
               {search && (
                 <button onClick={() => handleSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
@@ -337,7 +337,7 @@ export default function Documents() {
             <select
               value={statusFilter}
               onChange={(e) => handleStatusFilter(e.target.value as StatusFilter)}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white transition-colors shrink-0"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue bg-white transition-colors shrink-0"
             >
               {STATUS_FILTER_OPTIONS.map((o) => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -356,7 +356,7 @@ export default function Documents() {
             <button
               onClick={load}
               disabled={loading}
-              className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50 transition-colors shrink-0"
+              className="flex items-center gap-1.5 text-sm text-goc-blue hover:text-goc-blue-hover font-medium disabled:opacity-50 transition-colors shrink-0"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               {loading ? "Loading…" : "Refresh"}
@@ -365,9 +365,9 @@ export default function Documents() {
 
           {/* Auto-refresh notice */}
           {inProgressCount > 0 && (
-            <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-blue-50 border border-blue-100">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shrink-0" />
-              <p className="text-xs text-blue-700">
+            <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-goc-blue-light border border-goc-blue-muted">
+              <span className="w-1.5 h-1.5 rounded-full bg-goc-blue animate-pulse shrink-0" />
+              <p className="text-xs text-goc-blue">
                 {inProgressCount} document{inProgressCount !== 1 ? "s" : ""} being processed — refreshing automatically every 5 seconds.
               </p>
             </div>
@@ -385,7 +385,7 @@ export default function Documents() {
           {/* Initial spinner */}
           {loading && !loaded && (
             <div className="flex justify-center py-16">
-              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+              <Loader2 className="w-8 h-8 text-goc-blue animate-spin" />
             </div>
           )}
 
@@ -403,7 +403,7 @@ export default function Documents() {
                   <p className="text-sm text-slate-500 font-medium">No documents match these filters</p>
                   <button
                     onClick={() => { setSearch(""); setStatusFilter("all"); }}
-                    className="text-xs text-blue-600 hover:text-blue-700 mt-2"
+                    className="text-xs text-goc-blue hover:text-goc-blue-hover mt-2"
                   >
                     Clear filters
                   </button>
@@ -413,7 +413,7 @@ export default function Documents() {
                   <p className="text-sm text-slate-500 font-medium">No documents uploaded yet</p>
                   <button
                     onClick={() => setActiveTab("upload")}
-                    className="text-xs text-blue-600 hover:text-blue-700 mt-2"
+                    className="text-xs text-goc-blue hover:text-goc-blue-hover mt-2"
                   >
                     Upload your first file
                   </button>

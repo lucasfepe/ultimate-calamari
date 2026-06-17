@@ -251,9 +251,9 @@ export default function Chat() {
     <div className="max-w-3xl mx-auto flex flex-col" style={{ minHeight: "calc(100vh - 4rem)" }}>
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-900">Chat</h1>
+        <h1 className="text-2xl font-semibold text-goc-text">Chat</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Cast your question — we'll fish out the answer from your documents.
+          Ask questions about your documents and receive precise, cited answers.
         </p>
       </div>
 
@@ -273,7 +273,7 @@ export default function Chat() {
                 <p className="text-xs text-slate-400">No knowledge bases yet.</p>
                 <button
                   onClick={() => navigate("libraries")}
-                  className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  className="flex items-center gap-1 text-xs font-medium text-goc-blue hover:text-goc-blue-hover transition-colors"
                 >
                   Create one <ArrowRight className="w-3 h-3" />
                 </button>
@@ -282,7 +282,7 @@ export default function Chat() {
               <select
                 value={selectedLibId}
                 onChange={(e) => setSelectedLibId(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 bg-white transition-colors"
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-goc-text focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue bg-white transition-colors"
               >
                 <option value="">Select a knowledge base…</option>
                 {libraries.map((lib) => (
@@ -301,7 +301,7 @@ export default function Chat() {
           {messages.length > 0 && (
             <button
               onClick={handleNewChat}
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-blue-600 transition-colors pb-1 shrink-0"
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-goc-blue transition-colors pb-1 shrink-0"
             >
               <MessageSquare className="w-3.5 h-3.5" />
               New chat
@@ -332,7 +332,7 @@ export default function Chat() {
       {/* History loading */}
       {loadingHistory && (
         <div className="flex justify-center py-8">
-          <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+          <Loader2 className="w-6 h-6 text-goc-blue animate-spin" />
         </div>
       )}
 
@@ -343,11 +343,11 @@ export default function Chat() {
             <div key={msg.id}>
               {msg.role === "user" ? (
                 <div className="flex items-start gap-3 justify-end">
-                  <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-blue-600 px-4 py-3">
+                  <div className="max-w-[85%] rounded-2xl rounded-tr-sm bg-goc-blue px-4 py-3">
                     <p className="text-sm text-white leading-relaxed">{msg.text}</p>
                   </div>
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 mt-0.5">
-                    <User className="w-4 h-4 text-blue-600" />
+                  <div className="w-8 h-8 rounded-full bg-goc-blue-light flex items-center justify-center shrink-0 mt-0.5">
+                    <User className="w-4 h-4 text-goc-blue" />
                   </div>
                 </div>
               ) : (
@@ -355,7 +355,7 @@ export default function Chat() {
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${msg.error ? "bg-red-50" : "bg-slate-100"}`}>
                     {msg.error
                       ? <AlertCircle className="w-4 h-4 text-red-500" />
-                      : <Sparkles className="w-4 h-4 text-blue-600" />
+                      : <Sparkles className="w-4 h-4 text-goc-blue" />
                     }
                   </div>
                   <div className="max-w-[85%] space-y-2">
@@ -424,7 +424,7 @@ export default function Chat() {
                                       <span className="text-xs font-medium text-slate-600 truncate flex-1">
                                         {chunk.filename}
                                       </span>
-                                      <span className="text-[11px] font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full border border-blue-100 shrink-0">
+                                      <span className="text-[11px] font-medium text-goc-blue bg-goc-blue-light px-1.5 py-0.5 rounded-full border border-goc-blue-muted shrink-0">
                                         Source {i + 1}
                                       </span>
                                     </div>
@@ -448,7 +448,7 @@ export default function Chat() {
           {querying && (
             <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-0.5">
-                <Sparkles className="w-4 h-4 text-blue-600" />
+                <Sparkles className="w-4 h-4 text-goc-blue" />
               </div>
               <div className="rounded-2xl rounded-tl-sm bg-white border border-slate-200 px-4 py-3 shadow-sm">
                 <div className="flex items-center gap-1.5">
@@ -470,7 +470,7 @@ export default function Chat() {
             <MessageSquare className="w-10 h-10 text-slate-200 mx-auto mb-3" />
             <p className="text-sm text-slate-400">
               {selectedLibId
-                ? "Ask a question about your documents"
+                ? "Ask a question about your documents..."
                 : "Select a knowledge base to get started"}
             </p>
           </div>
@@ -478,8 +478,8 @@ export default function Chat() {
       )}
 
       {/* Input bar */}
-      <div className="sticky bottom-0 bg-slate-50 pt-2 pb-4">
-        <div className="relative rounded-xl border border-slate-200 bg-white shadow-sm focus-within:ring-2 focus-within:ring-blue-500/20 focus-within:border-blue-400 transition-all">
+      <div className="sticky bottom-0 bg-goc-grey pt-2 pb-4">
+        <div className="relative rounded-xl border border-slate-200 bg-white shadow-sm focus-within:ring-2 focus-within:ring-goc-blue/20 focus-within:border-goc-blue transition-all">
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
@@ -491,7 +491,7 @@ export default function Chat() {
                 ? "Select a knowledge base first…"
                 : libIsEmpty
                   ? "Add documents to this knowledge base before chatting…"
-                  : "Ask a question about your documents…"
+                  : "Ask a question about your documents..."
             }
             disabled={!selectedLibId || !!libIsEmpty}
             rows={2}
@@ -500,14 +500,14 @@ export default function Chat() {
           <button
             onClick={handleQuery}
             disabled={!canSend}
-            className="absolute bottom-2.5 right-2.5 rounded-lg bg-blue-600 p-2 text-white hover:bg-blue-700 disabled:opacity-40 disabled:hover:bg-blue-600 transition-colors"
+            className="absolute bottom-2.5 right-2.5 rounded-lg bg-goc-blue p-2 text-white hover:bg-goc-blue-hover disabled:opacity-40 disabled:hover:bg-goc-blue transition-colors"
             title="Send (Ctrl+Enter)"
           >
             {querying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           </button>
         </div>
         <p className="text-[11px] text-slate-400 text-center mt-1.5">
-          Answers are surfaced strictly from your documents · Ctrl+Enter to send
+          Answers are grounded strictly in your documents · Ctrl+Enter to send
         </p>
       </div>
     </div>

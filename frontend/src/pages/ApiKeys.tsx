@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { fetchApiKeys, createApiKey, revokeApiKey, type ApiKeyItem, type ApiKeyCreateResult } from "../api/client";
 
-const API_BASE = "https://ultimate-calamari-production.up.railway.app";
+const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -31,7 +31,7 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
   return (
     <div className="rounded-lg overflow-hidden border border-slate-700 bg-[#0d1f33]">
       <div className="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700">
-        <span className="text-[10px] font-semibold text-teal-400 uppercase tracking-widest">{language}</span>
+        <span className="text-[10px] font-semibold text-goc-blue-on-navy uppercase tracking-widest">{language}</span>
         <button onClick={copy} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors">
           {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
           {copied ? "Copied" : "Copy"}
@@ -269,21 +269,21 @@ function ApiPlayground({
       : genJs(apiKey, libraryId, prompt, multiTurn, conversationId, priorMessages);
 
   const inputCls =
-    "w-full rounded-md border border-[#1a3050] bg-[#0d1f33] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-teal-500/60 focus:ring-1 focus:ring-teal-500/30 font-mono transition-colors";
+    "w-full rounded-md border border-[#1a3050] bg-[#0d1f33] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-goc-blue/60 focus:ring-1 focus:ring-goc-blue/30 font-mono transition-colors";
   const labelCls =
     "block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5";
 
   return (
-    <section className="border-t border-slate-700 bg-[#0b1d35] sticky top-4 z-10">
+    <section className="border-t border-slate-700 bg-goc-navy sticky top-4 z-10">
 
       {/* Header */}
       <div className="px-6 pt-5 pb-4 border-b border-slate-700/60">
         <div className="flex items-start gap-2 flex-wrap">
-          <Zap className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
+          <Zap className="w-4 h-4 text-goc-blue-on-navy shrink-0 mt-0.5" />
           <h3 className="text-sm font-semibold text-white leading-snug flex-1">
             Generate your API call — paste your values and get ready-to-run code in your preferred language
           </h3>
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-400 border border-teal-500/20 shrink-0">
+          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-goc-blue/15 text-goc-blue-on-navy border border-goc-blue/20 shrink-0">
             interactive
           </span>
         </div>
@@ -322,7 +322,7 @@ function ApiPlayground({
           <button
             type="button"
             onClick={() => window.open(`${window.location.origin}/#libraries`, "_blank")}
-            className="mt-1 flex items-center gap-1 text-[11px] text-teal-500/70 hover:text-teal-400 transition-colors"
+            className="mt-1 flex items-center gap-1 text-[11px] text-goc-blue-on-navy/70 hover:text-goc-blue-on-navy transition-colors"
           >
             Copy from the Knowledge Bases page
             <ExternalLink className="w-2.5 h-2.5" />
@@ -346,7 +346,7 @@ function ApiPlayground({
             type="button"
             onClick={() => setMultiTurn((m) => !m)}
             className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
-              multiTurn ? "bg-teal-600" : "bg-slate-600"
+              multiTurn ? "bg-goc-blue" : "bg-slate-600"
             }`}
             aria-pressed={multiTurn}
           >
@@ -357,23 +357,23 @@ function ApiPlayground({
             />
           </button>
           <div className="flex items-center gap-2">
-            <MessageSquare className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+            <MessageSquare className="w-3.5 h-3.5 text-goc-blue-on-navy shrink-0" />
             <span className="text-xs font-semibold text-slate-300">Multi-turn conversation</span>
             <span className="text-xs text-slate-500">— include history &amp; conversation ID</span>
           </div>
         </div>
 
         {multiTurn && (
-          <div className="rounded-lg border border-teal-500/20 bg-teal-500/5 p-4 space-y-4">
+          <div className="rounded-lg border border-goc-blue/20 bg-goc-blue/5 p-4 space-y-4">
 
             {/* Explanatory note */}
             <div className="flex items-start gap-2">
-              <span className="text-teal-400 text-sm shrink-0 mt-0.5">ℹ</span>
-              <p className="text-xs text-teal-400/90 leading-relaxed">
-                Pass the <code className="bg-teal-900/40 px-1 py-0.5 rounded text-teal-300 font-mono">conversation_id</code>{" "}
-                from the previous response and the full <code className="bg-teal-900/40 px-1 py-0.5 rounded text-teal-300 font-mono">messages</code> history
+              <span className="text-goc-blue-on-navy text-sm shrink-0 mt-0.5">ℹ</span>
+              <p className="text-xs text-goc-blue-on-navy/90 leading-relaxed">
+                Pass the <code className="bg-goc-navy/40 px-1 py-0.5 rounded text-goc-blue-on-navy font-mono">conversation_id</code>{" "}
+                from the previous response and the full <code className="bg-goc-navy/40 px-1 py-0.5 rounded text-goc-blue-on-navy font-mono">messages</code> history
                 to maintain context across multiple questions. The current prompt still goes in the{" "}
-                <code className="bg-teal-900/40 px-1 py-0.5 rounded text-teal-300 font-mono">prompt</code> field.
+                <code className="bg-goc-navy/40 px-1 py-0.5 rounded text-goc-blue-on-navy font-mono">prompt</code> field.
               </p>
             </div>
 
@@ -396,7 +396,7 @@ function ApiPlayground({
               <div className="space-y-3">
                 <label className={labelCls}>
                   Conversation History{" "}
-                  <span className="text-teal-500 normal-case font-normal">
+                  <span className="text-goc-blue-on-navy normal-case font-normal">
                     ({priorMessages.length} prior turn{priorMessages.length !== 1 ? "s" : ""})
                   </span>
                 </label>
@@ -415,7 +415,7 @@ function ApiPlayground({
                       </button>
                     </div>
                     <div>
-                      <div className="text-[10px] font-semibold text-blue-400 uppercase tracking-wider mb-1">User</div>
+                      <div className="text-[10px] font-semibold text-goc-blue-on-navy uppercase tracking-wider mb-1">User</div>
                       <input
                         value={pair.userMsg}
                         onChange={(e) => updatePair(pair.id, "userMsg", e.target.value)}
@@ -440,7 +440,7 @@ function ApiPlayground({
             <button
               type="button"
               onClick={addPair}
-              className="flex items-center gap-1.5 text-xs font-semibold text-teal-400 hover:text-teal-300 transition-colors py-1"
+              className="flex items-center gap-1.5 text-xs font-semibold text-goc-blue-on-navy hover:text-goc-blue-on-navy transition-colors py-1"
             >
               <Plus className="w-3.5 h-3.5" />
               Add previous message pair
@@ -457,7 +457,7 @@ function ApiPlayground({
             onClick={() => setTab(t.id)}
             className={`px-4 py-2.5 text-xs font-semibold uppercase tracking-wider border-b-2 -mb-px transition-colors ${
               tab === t.id
-                ? "border-teal-400 text-teal-300"
+                ? "border-goc-blue-on-navy text-goc-blue-on-navy"
                 : "border-transparent text-slate-500 hover:text-slate-300"
             }`}
           >
@@ -470,7 +470,8 @@ function ApiPlayground({
       <div className="p-6">
         <CodeBlock code={code} language={tab === "javascript" ? "javascript" : tab} />
         <p className="text-[11px] text-slate-600 mt-3 text-center">
-          Replace <code className="text-slate-500">{API_BASE}</code> with your production URL when deployed
+          Backend URL: <code className="text-slate-500">{API_BASE}</code>
+          {!import.meta.env.VITE_API_URL && " (set VITE_API_URL to override)"}
         </p>
       </div>
     </section>
@@ -644,8 +645,8 @@ function CollapsibleCode({
         className="w-full flex items-center justify-between px-6 py-3.5 hover:bg-white/5 transition-colors text-left"
       >
         <div className="flex items-center gap-2">
-          <Icon className="w-4 h-4 text-teal-400" />
-          <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">Example — {title}</h4>
+          <Icon className="w-4 h-4 text-goc-blue-on-navy" />
+          <h4 className="text-xs font-bold text-goc-blue-on-navy uppercase tracking-wider">Example — {title}</h4>
         </div>
         {open
           ? <ChevronUp className="w-3.5 h-3.5 text-slate-500 shrink-0" />
@@ -681,13 +682,13 @@ function IntegrationGuide({
       {/* ── Outer toggle ── */}
       <button
         onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center justify-between px-6 py-4 bg-[#0b1d35] hover:bg-[#0f2540] transition-colors text-left"
+        className="w-full flex items-center justify-between px-6 py-4 bg-goc-navy hover:bg-goc-navy/90 transition-colors text-left"
       >
         <div className="flex items-center gap-3">
-          <Terminal className="w-5 h-5 text-teal-400 shrink-0" />
+          <Terminal className="w-5 h-5 text-goc-blue-on-navy shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-white">Integrate Ultimate Calamari into your app</p>
-            <p className="text-xs text-teal-400/80 mt-0.5">Live code generator · REST reference · curl, Python &amp; JS</p>
+            <p className="text-sm font-semibold text-white">Integrate Archivio into your app</p>
+            <p className="text-xs text-goc-blue-on-navy/80 mt-0.5">Live code generator · REST reference · curl, Python &amp; JS</p>
           </div>
         </div>
         {open
@@ -709,7 +710,7 @@ function IntegrationGuide({
               className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 transition-colors text-left border-t border-slate-700"
             >
               <div className="flex items-center gap-2.5">
-                <Code2 className="w-4 h-4 text-teal-400 shrink-0" />
+                <Code2 className="w-4 h-4 text-goc-blue-on-navy shrink-0" />
                 <span className="text-sm font-semibold text-white">Full API Reference &amp; Documentation</span>
                 <span className="hidden sm:inline text-xs text-slate-500">
                   — endpoint · request body · response · conversations · examples
@@ -728,9 +729,9 @@ function IntegrationGuide({
                 <section className="px-6 py-5 bg-white">
                   <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Endpoint</h3>
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[11px] font-bold px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-100 shrink-0">POST</span>
+                    <span className="text-[11px] font-bold px-2 py-1 rounded bg-goc-blue-light text-goc-blue border border-goc-blue-muted shrink-0">POST</span>
                     <code className="text-sm font-mono text-slate-800 break-all">
-                      {API_BASE}/v1/libraries/<span className="text-teal-600">{"{library_id}"}</span>/query
+                      {API_BASE}/v1/libraries/<span className="text-goc-blue">{"{library_id}"}</span>/query
                     </code>
                   </div>
                   <p className="mt-3 text-xs text-slate-500 leading-relaxed">
@@ -935,7 +936,7 @@ export default function ApiKeys() {
         <button
           ref={newKeyBtnRef}
           onClick={() => setShowCreate(true)}
-          className={`flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm ${
+          className={`flex items-center gap-1.5 rounded-lg bg-goc-blue px-4 py-2.5 text-sm font-medium text-white hover:bg-goc-blue-hover transition-colors shadow-sm ${
             highlightNewKey ? "ring-4 ring-yellow-400 ring-offset-2 animate-pulse" : ""
           }`}
         >
@@ -953,13 +954,13 @@ export default function ApiKeys() {
               onChange={(e) => setNewKeyName(e.target.value)}
               placeholder="Key name (e.g. production, staging)"
               autoFocus
-              className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-colors"
+              className="flex-1 rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-goc-blue/20 focus:border-goc-blue transition-colors"
               onKeyDown={(e) => { if (e.key === "Enter") handleCreate(); }}
             />
             <button
               onClick={handleCreate}
               disabled={creating || !newKeyName.trim()}
-              className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shrink-0"
+              className="rounded-lg bg-goc-blue px-4 py-2.5 text-sm font-medium text-white hover:bg-goc-blue-hover disabled:opacity-50 transition-colors shrink-0"
             >
               {creating ? <Loader2 className="w-4 h-4 animate-spin inline" /> : "Generate"}
             </button>
@@ -994,7 +995,7 @@ export default function ApiKeys() {
                   </button>
                   <button
                     onClick={handleCopy}
-                    className="p-1.5 text-slate-400 hover:text-blue-600 rounded-md hover:bg-blue-50 transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-goc-blue rounded-md hover:bg-goc-blue-light transition-colors"
                     title="Copy"
                   >
                     {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
@@ -1028,7 +1029,7 @@ export default function ApiKeys() {
         <button
           onClick={load}
           disabled={loading}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium disabled:opacity-50 transition-colors"
+          className="text-sm text-goc-blue hover:text-goc-blue-hover font-medium disabled:opacity-50 transition-colors"
         >
           {loading ? "Loading…" : "Refresh"}
         </button>
@@ -1036,7 +1037,7 @@ export default function ApiKeys() {
 
       {loading && !loaded && (
         <div className="flex justify-center py-16">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+          <Loader2 className="w-8 h-8 text-goc-blue animate-spin" />
         </div>
       )}
 
@@ -1060,8 +1061,8 @@ export default function ApiKeys() {
               }`}
             >
               <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${!key.is_active ? "bg-slate-100" : "bg-blue-50"}`}>
-                  <Key className={`w-4 h-4 ${!key.is_active ? "text-slate-400" : "text-blue-500"}`} />
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${!key.is_active ? "bg-slate-100" : "bg-goc-blue-light"}`}>
+                  <Key className={`w-4 h-4 ${!key.is_active ? "text-slate-400" : "text-goc-blue"}`} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className={`text-sm font-medium truncate ${!key.is_active ? "text-slate-400 line-through" : "text-slate-700"}`}>
